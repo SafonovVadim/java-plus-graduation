@@ -1,0 +1,30 @@
+spring:
+  jpa:
+  hibernate:
+    ddl-auto: none
+    format_sql: true
+  sql:
+    init:
+      mode: always
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/stats_db
+    username: dbuser
+    password: 12345
+  main:
+    allow-bean-definition-overriding: true
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://discovery-server:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+stats:
+  server:
+    url: http://localhost:9090
+server:
+  port: 0

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: main-service
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        serviceId: config-server
+      fail-fast: false
+      retry:
+        use-random-policy: true
+        max-interval: 6000
