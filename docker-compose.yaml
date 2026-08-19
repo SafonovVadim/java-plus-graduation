@@ -14,13 +14,15 @@ services:
   config-server:
     build: ./infra/config-server
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 5
     depends_on:
       discovery-server:
         condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
     networks:
       - app-network
 
@@ -30,7 +32,9 @@ services:
       - "8080:8080"
     depends_on:
       config-server:
-        condition: service_healthy
+        condition: service_started
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
     networks:
       - app-network
 
@@ -41,12 +45,12 @@ services:
       SPRING_DATASOURCE_USERNAME: dbuser
       SPRING_DATASOURCE_PASSWORD: 12345
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
     depends_on:
       discovery-server:
         condition: service_healthy
       gateway-server:
-        condition: service_healthy
+        condition: service_started
       stats-db:
         condition: service_healthy
     healthcheck:
@@ -84,12 +88,12 @@ services:
       SPRING_DATASOURCE_USERNAME: dbuser
       SPRING_DATASOURCE_PASSWORD: 12345
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
     depends_on:
       discovery-server:
         condition: service_healthy
       gateway-server:
-        condition: service_healthy
+        condition: service_started
       core-db:
         condition: service_healthy
     networks:

@@ -22,11 +22,4 @@ spring:
           filters:
             - StripPrefix=0
 
-eureka:
-  client:
-    service-url:
-      default-zone: http://discovery-server:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
+

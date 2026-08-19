@@ -15,16 +15,5 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
-eureka:
-  client:
-    service-url:
-      default-zone: http://discovery-server:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
-  instance:
-    prefer-ip-address: true
-stats:
-  server:
-    url: http://localhost:9090
 server:
   port: 0
