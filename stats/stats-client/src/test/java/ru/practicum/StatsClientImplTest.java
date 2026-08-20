@@ -2,10 +2,12 @@ package ru.practicum;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -15,6 +17,7 @@ import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.ViewStats;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,25 +27,46 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @ContextConfiguration(classes = StatsClientImplTest.TestConfig.class)
-@TestPropertySource(properties = "stats.server.url=http://localhost:8080")
+@TestPropertySource(properties = "stats.service.id=stats-server")
 class StatsClientImplTest {
 
     @Configuration
     static class TestConfig {
 
+        @Bean
+        RestTemplate restTemplate() {
+            return new RestTemplate();
+        }
+
+        @Bean
+        ServiceInstanceProvider serviceInstanceProvider(ServiceInstance mockInstance) {
+            return new TestServiceInstanceProvider(mockInstance);
+        }
+
+        @Bean
+        ServiceInstance mockInstance() {
+            return new TestServiceInstance("localhost", 8080);
+        }
+
+        @Bean
+        RetryTemplate retryTemplate() {
+            return new RetryTemplate();
+        }
     }
 
     private StatsClient statsClient;
 
     private MockRestServiceServer server;
 
-    private static final String BASE_URL = "http://localhost:8671";
-
     @BeforeEach
     void setUp() {
         RestTemplate restTemplate = new RestTemplate();
-        DiscoveryClient discoveryClient = restTemplate.getForObject(BASE_URL, DiscoveryClient.class);
-        this.statsClient = new StatsClientImpl(restTemplate, discoveryClient, BASE_URL);
+        ServiceInstanceProvider serviceInstanceProvider = new TestServiceInstanceProvider(
+                new TestServiceInstance("localhost", 8080)
+        );
+        RetryTemplate retryTemplate = new RetryTemplate();
+
+        this.statsClient = new StatsClientImpl(restTemplate, serviceInstanceProvider, retryTemplate);
         this.server = MockRestServiceServer.bindTo(restTemplate).build();
     }
 
@@ -55,15 +79,16 @@ class StatsClientImplTest {
                 .timestamp(LocalDateTime.of(2026, 4, 23, 10, 0, 0))
                 .build();
 
-        server.expect(requestTo(BASE_URL + "/hit"))
+        server.expect(requestTo("http://localhost:8080/hit"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(content().json(
-                        "{\n" +
-                                "  \"app\": \"test-app\",\n" +
-                                "  \"uri\": \"/test\",\n" +
-                                "  \"ip\": \"192.168.0.1\",\n" +
-                                "  \"timestamp\": \"2026-04-23 10:00:00\"\n" +
-                                "}"
+                        """
+                                {
+                                  "app": "test-app",
+                                  "uri": "/test",
+                                  "ip": "192.168.0.1",
+                                  "timestamp": "2026-04-23 10:00:00"
+                                }"""
                 ))
                 .andRespond(withNoContent());
 
@@ -77,17 +102,20 @@ class StatsClientImplTest {
         LocalDateTime end = LocalDateTime.of(2026, 4, 24, 0, 0, 0);
         List<String> uris = List.of("/event/1", "/event/2");
         Boolean unique = true;
-        server.expect(anyRequestToPath(BASE_URL + "/stats"))
-                .andExpect(method(HttpMethod.GET))
-                .andExpect(queryParam("start", equalTo("2026-04-23%2000:00:00")))
-                .andExpect(queryParam("end", equalTo("2026-04-24%2000:00:00")))
-                .andExpect(queryParam("uris", equalTo(String.join(",", uris))))
-                .andExpect(queryParam("unique", equalTo(unique.toString())))
+        server.expect(combinedMatchers(
+                pathMatches(),
+                method(HttpMethod.GET),
+                queryParam("start", equalTo("2026-04-23%2000:00:00")),
+                queryParam("end", equalTo("2026-04-24%2000:00:00")),
+                queryParam("uris", equalTo("/event/1,/event/2")),
+                queryParam("unique", equalTo("true"))
+        ))
                 .andRespond(withSuccess(
-                        "[\n" +
-                                "  {\"app\": \"test-app\", \"uri\": \"/event/1\", \"hits\": 5},\n" +
-                                "  {\"app\": \"test-app\", \"uri\": \"/event/2\", \"hits\": 3}\n" +
-                                "]",
+                        """
+                                [
+                                  {"app": "test-app", "uri": "/event/1", "hits": 5},
+                                  {"app": "test-app", "uri": "/event/2", "hits": 3}
+                                ]""",
                         MediaType.APPLICATION_JSON
                 ));
 
@@ -101,24 +129,27 @@ class StatsClientImplTest {
     void shouldGetStatsWithoutUrisAndUniqueFalse() {
         LocalDateTime start = LocalDateTime.of(2026, 4, 23, 0, 0, 0);
         LocalDateTime end = LocalDateTime.of(2026, 4, 24, 0, 0, 0);
-        server.expect(anyRequestToPath(BASE_URL + "/stats"))
-                .andExpect(method(HttpMethod.GET))
-                .andExpect(queryParam("start", equalTo("2026-04-23%2000:00:00")))
-                .andExpect(queryParam("end", equalTo("2026-04-24%2000:00:00")))
-                .andExpect(queryParam("unique", equalTo("false")))
+        server.expect(combinedMatchers(
+                pathMatches(),
+                method(HttpMethod.GET),
+                queryParam("start", equalTo("2026-04-23%2000:00:00")),
+                queryParam("end", equalTo("2026-04-24%2000:00:00")),
+                queryParam("unique", equalTo("false"))
+        ))
                 .andRespond(withSuccess(
-                        "[\n" +
-                                "  {\"app\": \"test-app\", \"uri\": \"/home\", \"hits\": 10}\n" +
-                                "]",
+                        """
+                                [
+                                  {"app": "test-app", "uri": "/home", "hits": 10}
+                                ]""",
                         MediaType.APPLICATION_JSON
                 ));
 
         List<ViewStats> result = statsClient.getStats(start, end, null, false);
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getApp()).isEqualTo("test-app");
-        assertThat(result.get(0).getUri()).isEqualTo("/home");
-        assertThat(result.get(0).getHits()).isEqualTo(10L);
+        assertThat(result.getFirst().getApp()).isEqualTo("test-app");
+        assertThat(result.getFirst().getUri()).isEqualTo("/home");
+        assertThat(result.getFirst().getHits()).isEqualTo(10L);
 
         server.verify();
     }
@@ -133,15 +164,16 @@ class StatsClientImplTest {
                 .timestamp(time)
                 .build();
 
-        server.expect(requestTo(BASE_URL + "/hit"))
+        server.expect(requestTo("http://localhost:8080/hit"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(content().json(
-                        "{\n" +
-                                "  \"app\": \"app\",\n" +
-                                "  \"uri\": \"/test\",\n" +
-                                "  \"ip\": \"127.0.0.1\",\n" +
-                                "  \"timestamp\": \"2026-01-01 12:30:45\"\n" +
-                                "}"
+                        """
+                                {
+                                  "app": "app",
+                                  "uri": "/test",
+                                  "ip": "127.0.0.1",
+                                  "timestamp": "2026-01-01 12:30:45"
+                                }"""
                 ))
                 .andRespond(withNoContent());
 
@@ -150,12 +182,91 @@ class StatsClientImplTest {
         server.verify();
     }
 
-    private RequestMatcher anyRequestToPath(String path) {
+    private RequestMatcher combinedMatchers(RequestMatcher... matchers) {
         return request -> {
-            String actual = request.getURI().toString();
-            if (!actual.startsWith(path)) {
-                throw new AssertionError("Expected URL to start with \"" + path + "\" but was \"" + actual + "\"");
+            List<String> errors = new ArrayList<>();
+            for (RequestMatcher matcher : matchers) {
+                try {
+                    matcher.match(request);
+                } catch (AssertionError e) {
+                    errors.add(e.getMessage());
+                }
+            }
+            if (!errors.isEmpty()) {
+                throw new AssertionError(String.join("; ", errors));
             }
         };
+    }
+
+    private RequestMatcher pathMatches() {
+        return request -> {
+            String actual = request.getURI().getPath();
+            if (!actual.startsWith("/stats")) {
+                throw new AssertionError("Expected path to start with \"" + "/stats" + "\" but was \"" + actual + "\"");
+            }
+        };
+    }
+
+    /**
+     * Тестовая реализация ServiceInstanceProvider, которая возвращает фиксированный ServiceInstance.
+     * Не зависит от DiscoveryClient и Eureka.
+     */
+    private static class TestServiceInstanceProvider extends ServiceInstanceProvider {
+
+        private final ServiceInstance fixedInstance;
+
+        TestServiceInstanceProvider(ServiceInstance fixedInstance) {
+            super(null, "");
+            this.fixedInstance = fixedInstance;
+        }
+
+        @Override
+        public ServiceInstance getInstance() {
+            return fixedInstance;
+        }
+    }
+
+    /**
+     * Тестовая реализация ServiceInstance с фиксированными host и port.
+     */
+    private static class TestServiceInstance implements ServiceInstance {
+
+        private final String host;
+        private final int port;
+
+        TestServiceInstance(String host, int port) {
+            this.host = host;
+            this.port = port;
+        }
+
+        @Override
+        public String getServiceId() {
+            return null;
+        }
+
+        @Override
+        public String getHost() {
+            return host;
+        }
+
+        @Override
+        public int getPort() {
+            return port;
+        }
+
+        @Override
+        public boolean isSecure() {
+            return false;
+        }
+
+        @Override
+        public java.util.Map<String, String> getMetadata() {
+            return java.util.Collections.emptyMap();
+        }
+
+        @Override
+        public java.net.URI getUri() {
+            return java.net.URI.create("http://" + host + ":" + port);
+        }
     }
 }
