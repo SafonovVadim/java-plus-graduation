@@ -1,0 +1,19 @@
+spring:
+  jpa:
+  hibernate:
+    ddl-auto: none
+    format_sql: true
+  sql:
+    init:
+      mode: always
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/stats_db
+    username: dbuser
+    password: 12345
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  port: 0

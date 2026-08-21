@@ -1,14 +1,56 @@
 services:
-  stats-server:
-    build: ./ewm-stats-service/stats-service-app
+  discovery-server:
+    build: ./infra/discovery-server
     ports:
-      - "9090:9090"
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  config-server:
+    build: ./infra/config-server
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
+    networks:
+      - app-network
+
+  gateway-server:
+    build: ./infra/gateway-server
+    ports:
+      - "8080:8080"
+    depends_on:
+      config-server:
+        condition: service_started
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
+    networks:
+      - app-network
+
+  stats-server:
+    build: ./stats/stats-server
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats_db
       SPRING_DATASOURCE_USERNAME: dbuser
       SPRING_DATASOURCE_PASSWORD: 12345
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
     depends_on:
+      discovery-server:
+        condition: service_healthy
+      gateway-server:
+        condition: service_started
       stats-db:
         condition: service_healthy
     healthcheck:
@@ -25,8 +67,8 @@ services:
     hostname: stats-db
     ports:
       - "5432:5432"
-    #volumes:
-     # - ./volumes/postgres-stats:/var/lib/postgresql/data
+      #volumes:
+      # - ./volumes/postgres-stats:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: stats_db
       POSTGRES_USER: dbuser
@@ -39,33 +81,30 @@ services:
     networks:
       - app-network
 
-  ewm-service:
-    build: ./ewm-main-service/main-service
-    ports:
-      - "8080:8080"
+  main-service:
+    build: ./core/main-service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/core_db
       SPRING_DATASOURCE_USERNAME: dbuser
       SPRING_DATASOURCE_PASSWORD: 12345
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      STATS_SERVER_URL: http://stats-server:9090
+      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
     depends_on:
-      ewm-db:
+      discovery-server:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      gateway-server:
+        condition: service_started
+      core-db:
+        condition: service_healthy
     networks:
       - app-network
 
-  ewm-db:
+  core-db:
     image: postgres:16.1
-    container_name: ewm-db
-    hostname: ewm-db
+    container_name: core-db
+    hostname: core-db
     environment:
-      POSTGRES_DB: ewm_db
+      POSTGRES_DB: core_db
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: 12345
     ports:
@@ -82,6 +121,3 @@ networks:
   app-network:
     driver: bridge
 
-#volumes:
- # postgres-stats:
-  #postgres-main:

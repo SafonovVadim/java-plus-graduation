@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway,health,info
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: main-service-route
+          uri: lb://main-service
+          predicates:
+            - Path=/events/**, /categories/**, /compilations/**, /users/**, /admin/**
+          filters:
+            - StripPrefix=0
+
+
+
