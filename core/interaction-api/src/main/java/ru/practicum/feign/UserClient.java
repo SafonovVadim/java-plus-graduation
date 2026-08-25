@@ -8,10 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.users.NewUserRequest;
 import ru.practicum.dto.users.UserDto;
+import ru.practicum.entity.User;
 
 import java.util.List;
 
-@FeignClient(name = "administration", path = "/admin/users", configuration = FeignConfig.class)
+@FeignClient(name = "user-service", path = "/admin/users", configuration = FeignConfig.class)
 public interface UserClient {
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -28,4 +29,8 @@ public interface UserClient {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{userId}")
     void delete(@PathVariable @Positive Long userId);
+
+    @GetMapping("/{userId}")
+    User getUser(Long userId);
+
 }

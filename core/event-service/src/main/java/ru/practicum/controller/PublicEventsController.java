@@ -5,7 +5,10 @@ import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.events.EventFullDto;
@@ -78,7 +81,7 @@ public class PublicEventsController implements PublicEventsClient {
     }
 
     @Override
-    public ResponseEntity<EventFullDto> getEventById(
+    public ResponseEntity<EventFullDto> getEventByIdFull(
             @PathVariable Long id,
             HttpServletRequest request
     ) {
@@ -92,10 +95,5 @@ public class PublicEventsController implements PublicEventsClient {
 
         EventFullDto event = eventService.getPublishedEventById(id);
         return ResponseEntity.ok(event);
-    }
-
-    @Override
-    public Event getEventById(Long id) {
-        return eventService.getEventById(id);
     }
 }

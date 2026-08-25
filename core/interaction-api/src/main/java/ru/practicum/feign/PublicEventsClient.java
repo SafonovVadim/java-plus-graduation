@@ -55,11 +55,8 @@ public interface PublicEventsClient {
     );
 
     @GetMapping("/{id}")
-    ResponseEntity<EventFullDto> getEventById(
+    ResponseEntity<EventFullDto> getEventByIdFull(
             @PathVariable Long id,
             HttpServletRequest request
     );
-
-    @GetMapping("/{id}")
-    Event getEventById(@PathVariable Long id);
 }

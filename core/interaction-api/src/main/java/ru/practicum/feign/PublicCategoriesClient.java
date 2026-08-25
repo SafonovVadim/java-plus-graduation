@@ -8,7 +8,7 @@ import ru.practicum.dto.categories.CategoryDto;
 
 import java.util.List;
 
-@FeignClient(name = "additional-functionality", path = "/categories", configuration = FeignConfig.class)
+@FeignClient(name = "categories-service", path = "/categories", configuration = FeignConfig.class)
 
 public interface PublicCategoriesClient {
 

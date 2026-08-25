@@ -1,6 +1,6 @@
 spring:
   application:
-    name: events-management
+    name: event-service
   config:
     import: "configserver:"
   cloud:

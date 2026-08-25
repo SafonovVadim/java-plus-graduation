@@ -1,6 +1,5 @@
 package ru.practicum.service;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -24,7 +23,7 @@ import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
 import ru.practicum.feign.PublicCategoriesClient;
 import ru.practicum.feign.PublicEventsClient;
-import ru.practicum.feign.PublicUserClient;
+import ru.practicum.feign.UserClient;
 import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.RequestsMapper;
 import ru.practicum.repository.EventsRepository;
@@ -50,7 +49,7 @@ public class EventsServiceImpl implements EventsService {
     private static final int MIN_HOURS_BEFORE_EVENT = 2;
     private final EventsRepository eventRepository;
     private final PublicCategoriesClient publicCategoriesClient;
-    private final PublicUserClient publicUserClient;
+    private final UserClient publicUserClient;
     private final RequestRepository requestRepository;
     private final PublicEventsClient publicEventsClient;
     private final StatsClient statsClient;
@@ -352,7 +351,7 @@ public class EventsServiceImpl implements EventsService {
             Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
 
         // 1. Проверяем существование события и принадлежность пользователю
-        Event event = publicEventsClient.getEventById(eventId);
+        Event event = eventRepository.getEventById(eventId);
 
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ForbiddenActionException("User is not the initiator of the event");
@@ -418,7 +417,7 @@ public class EventsServiceImpl implements EventsService {
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         // 1. Проверяем существование события и принадлежность пользователю
-        Event event = publicEventsClient.getEventById(eventId);
+        Event event = eventRepository.getEventById(eventId);
 
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ForbiddenActionException("User is not the initiator of the event");

@@ -1,7 +1,6 @@
 package ru.practicum.feign;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,8 +13,6 @@ import ru.practicum.dto.compilations.NewCompilationDto;
 import ru.practicum.dto.compilations.UpdateCompilationRequest;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.UpdateEventAdminRequest;
-import ru.practicum.dto.users.NewUserRequest;
-import ru.practicum.dto.users.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

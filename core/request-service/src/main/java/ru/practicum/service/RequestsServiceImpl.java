@@ -12,8 +12,9 @@ import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
 import ru.practicum.feign.PublicEventsClient;
-import ru.practicum.feign.PublicUserClient;
+import ru.practicum.feign.UserClient;
 import ru.practicum.mapper.RequestsMapper;
+import ru.practicum.repository.EventsRepository;
 import ru.practicum.repository.RequestRepository;
 
 import java.time.LocalDateTime;
@@ -28,10 +29,9 @@ import static ru.practicum.mapper.RequestsMapper.toDto;
 @Transactional
 @Slf4j
 public class RequestsServiceImpl implements RequestsService {
-
-    private final PublicEventsClient publicEventsClient;
+    private final EventsRepository eventsRepository;
     private final RequestRepository requestRepository;
-    private final PublicUserClient publicUserClient;
+    private final UserClient publicUserClient;
 
     @Override
     @Transactional
@@ -40,7 +40,7 @@ public class RequestsServiceImpl implements RequestsService {
         User requester = publicUserClient.getUser(userId);
 
         // 2. Проверяем существование события
-        Event event = publicEventsClient.getEventById(eventId);
+        Event event = eventsRepository.getEventById(eventId);
 
         // 3. Проверяем, что пользователь не является инициатором события
         if (event.getInitiator().getId().equals(userId)) {
@@ -125,7 +125,8 @@ public class RequestsServiceImpl implements RequestsService {
         log.info("Заявка на участие с ID: {} отменена пользователем: {}", requestId, userId);
         return toDto(savedRequest);
     }
-@Override
+
+    @Override
     public List<ParticipationRequestDto> getUserParticipationRequests(Long userId) {
         // 1. Проверяем существование пользователя
         User user = publicUserClient.getUser(userId);

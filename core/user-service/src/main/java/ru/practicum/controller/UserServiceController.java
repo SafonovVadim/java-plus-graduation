@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.users.NewUserRequest;
 import ru.practicum.dto.users.UserDto;
+import ru.practicum.entity.User;
 import ru.practicum.feign.UserClient;
 import ru.practicum.service.UserService;
 
@@ -30,5 +31,10 @@ public class UserServiceController implements UserClient {
     @Override
     public void delete(Long userId) {
         userService.deleteById(userId);
+    }
+
+    @Override
+    public User getUser(Long userId) {
+        return userService.findById(userId);
     }
 }

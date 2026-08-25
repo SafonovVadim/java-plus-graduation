@@ -10,7 +10,7 @@ import ru.practicum.dto.compilations.CompilationDto;
 
 import java.util.List;
 
-@FeignClient(name = "additional-functionality", path = "/compilations", configuration = FeignConfig.class)
+@FeignClient(name = "compilation-service", path = "/compilations", configuration = FeignConfig.class)
 public interface PublicCompilationClient {
 
     @GetMapping

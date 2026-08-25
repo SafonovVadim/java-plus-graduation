@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.entity.CategoryMapper;
-import ru.practicum.entity.CategoryRepository;
 import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.entity.Category;
+import ru.practicum.entity.CategoryMapper;
 import ru.practicum.errors.exception.NotFoundException;
+import ru.practicum.repository.CategoryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;

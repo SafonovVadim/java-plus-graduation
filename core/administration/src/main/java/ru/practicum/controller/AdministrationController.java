@@ -11,8 +11,6 @@ import ru.practicum.dto.compilations.NewCompilationDto;
 import ru.practicum.dto.compilations.UpdateCompilationRequest;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.UpdateEventAdminRequest;
-import ru.practicum.dto.users.NewUserRequest;
-import ru.practicum.dto.users.UserDto;
 import ru.practicum.feign.AdministrationManagementClient;
 import ru.practicum.service.AdministrationService;
 

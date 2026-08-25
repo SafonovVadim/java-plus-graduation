@@ -1,10 +1,13 @@
 package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import ru.practicum.service.CategoryService;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.feign.PublicCategoriesClient;
+import ru.practicum.service.CategoryService;
 
 import java.util.List;
 

@@ -57,5 +57,7 @@ public interface EventsRepository extends JpaRepository<Event, Long>, JpaSpecifi
             @Param("size") int size);
 
     Optional<Event> findById(Long id);
+
+    Event getEventById(Long id);
 }
 
