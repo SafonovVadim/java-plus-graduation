@@ -88,4 +88,15 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>ru.practicum.CategoriesService</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
