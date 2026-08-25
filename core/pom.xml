@@ -12,10 +12,12 @@
 
     <modules>
         <module>interaction-api</module>
-        <module>events-management</module>
-        <module>requests-management</module>
+        <module>event-service</module>
+        <module>request-service</module>
         <module>administration</module>
-        <module>additional-functionality</module>
+        <module>compilation-service</module>
+        <module>categories-service</module>
+        <module>user-service</module>
     </modules>
 
     <properties>

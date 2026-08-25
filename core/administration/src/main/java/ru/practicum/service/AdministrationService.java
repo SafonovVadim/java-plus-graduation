@@ -6,8 +6,6 @@ import ru.practicum.dto.compilations.NewCompilationDto;
 import ru.practicum.dto.compilations.UpdateCompilationRequest;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.UpdateEventAdminRequest;
-import ru.practicum.dto.users.NewUserRequest;
-import ru.practicum.dto.users.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,9 +36,5 @@ public interface AdministrationService {
 
     EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request);
 
-    UserDto save(NewUserRequest request);
 
-    List<UserDto> findByIdsOrAllWithPagination(List<Long> ids, int offset, int size);
-
-    void deleteById(Long id);
 }

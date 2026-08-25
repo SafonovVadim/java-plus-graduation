@@ -57,19 +57,4 @@ public interface AdministrationManagementClient {
 
     @PatchMapping("/events/{eventId}")
     ResponseEntity<EventFullDto> updateEventByAdmin(@PathVariable Long eventId, @Valid @RequestBody UpdateEventAdminRequest updateRequest);
-
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/users")
-    UserDto createUser(@Valid @RequestBody NewUserRequest request);
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/users")
-    List<UserDto> get(
-            @RequestParam(name = "ids", required = false) List<Long> ids,
-            @RequestParam(defaultValue = "0") @Min(0) int offset,
-            @RequestParam(defaultValue = "10") @Min(1) int size);
-
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/users{userId}")
-    void delete(@PathVariable @Positive Long userId);
 }

@@ -65,19 +65,4 @@ public class AdministrationController implements AdministrationManagementClient 
         return ResponseEntity.ok(administrationService.updateEventByAdmin(eventId, updateRequest));
     }
 
-
-    @Override
-    public UserDto createUser(NewUserRequest request) {
-        return administrationService.save(request);
-    }
-
-    @Override
-    public List<UserDto> get(List<Long> ids, int offset, int size) {
-        return administrationService.findByIdsOrAllWithPagination(ids, offset, size);
-    }
-
-    @Override
-    public void delete(Long userId) {
-        administrationService.deleteById(userId);
-    }
 }
