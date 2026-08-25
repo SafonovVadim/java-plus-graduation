@@ -11,7 +11,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>main-service</module>
+        <module>interaction-api</module>
+        <module>events-management</module>
+        <module>requests-management</module>
+        <module>administration</module>
+        <module>additional-functionality</module>
     </modules>
 
     <properties>

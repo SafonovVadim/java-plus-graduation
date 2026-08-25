@@ -11,10 +11,26 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: main-service-route
-          uri: lb://main-service
+        - id: events-management
+          uri: lb://events-management
           predicates:
-            - Path=/events/**, /categories/**, /compilations/**, /users/**, /admin/**
+            - Path=/users/{userId}/events/**
+        - id: requests-management
+          uri: lb://events-management
+          predicates:
+            - Path=/users/{userId}/requests/**
+          filters:
+            - StripPrefix=0
+        - id: administration
+          uri: lb://administration
+          predicates:
+            - Path=/admin/**
+          filters:
+            - StripPrefix=0
+        - id: additional-functionality
+          uri: lb://additional-functionality
+          predicates:
+            - Path=/compilations/**,/categories/**,/events/**
           filters:
             - StripPrefix=0
 
