@@ -62,6 +62,7 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         log.info("Начинаем удаление пользователя с ID: {}", id);

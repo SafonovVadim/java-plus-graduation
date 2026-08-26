@@ -1,5 +1,6 @@
 package ru.practicum.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.users.NewUserRequest;
 import ru.practicum.dto.users.UserDto;
 import ru.practicum.entity.User;
@@ -11,6 +12,7 @@ public interface UserService {
 
     List<UserDto> findByIdsOrAllWithPagination(List<Long> ids, int offset, int size);
 
+    @Transactional
     void deleteById(Long id);
 
     User findById(Long id);
