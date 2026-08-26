@@ -22,7 +22,6 @@ import ru.practicum.errors.exception.ForbiddenActionException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
 import ru.practicum.feign.PublicCategoriesClient;
-import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.feign.UserClient;
 import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.RequestsMapper;
@@ -51,7 +50,6 @@ public class EventsServiceImpl implements EventsService {
     private final PublicCategoriesClient publicCategoriesClient;
     private final UserClient publicUserClient;
     private final RequestRepository requestRepository;
-    private final PublicEventsClient publicEventsClient;
     private final StatsClient statsClient;
 
     @Override

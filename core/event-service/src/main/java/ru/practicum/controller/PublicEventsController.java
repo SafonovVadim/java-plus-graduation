@@ -13,7 +13,6 @@ import ru.practicum.StatsClient;
 import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
-import ru.practicum.entity.Event;
 import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.service.PublicEventsService;
 
