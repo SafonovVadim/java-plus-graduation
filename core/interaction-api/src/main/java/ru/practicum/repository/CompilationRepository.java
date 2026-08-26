@@ -18,5 +18,5 @@ public interface CompilationRepository extends JpaRepository<Compilation, Long> 
 
     @Modifying
     @Query("DELETE FROM Compilation c WHERE c.id = :compId")
-    long deleteCompilationById(@Param("compId") Long compId);
+    int deleteCompilationById(@Param("compId") Long compId);
 }
