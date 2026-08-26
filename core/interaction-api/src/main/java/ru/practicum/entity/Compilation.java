@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "compilations")
@@ -28,17 +30,9 @@ public class Compilation {
     @Column(name = "description", length = 1000)
     private String description;
 
-    @ManyToMany
-    @JoinTable(
-            name = "compilation_events",
-            joinColumns = @JoinColumn(name = "compilation_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id")
-    )
-    private List<Event> events = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "compilation_events", joinColumns = @JoinColumn(name = "compilation_id"))
+    @Column(name = "event_id")
+    private Set<Long> eventIds = new LinkedHashSet<>();
 
-    public Compilation(String title, Boolean pinned, String description) {
-        this.title = title;
-        this.pinned = pinned;
-        this.description = description;
-    }
 }
