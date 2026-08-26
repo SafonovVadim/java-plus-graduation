@@ -23,8 +23,8 @@ spring:
             - Path=/admin/users/**
           filters:
             - StripPrefix=0
-        - id: categories-service
-          uri: lb://categories-service
+        - id: category-service
+          uri: lb://category-service
           predicates:
             - Path=/categories/**, /admin/categories/**
           filters:
