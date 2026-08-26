@@ -11,6 +11,7 @@ import ru.practicum.entity.User;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
+import ru.practicum.feign.PublicUserClient;
 import ru.practicum.feign.UserClient;
 import ru.practicum.mapper.RequestsMapper;
 import ru.practicum.repository.EventsRepository;
@@ -30,7 +31,7 @@ import static ru.practicum.mapper.RequestsMapper.toDto;
 public class RequestsServiceImpl implements RequestsService {
     private final EventsRepository eventsRepository;
     private final RequestRepository requestRepository;
-    private final UserClient publicUserClient;
+    private final PublicUserClient publicUserClient;
 
     @Override
     @Transactional

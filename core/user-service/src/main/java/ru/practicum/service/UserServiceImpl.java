@@ -72,9 +72,4 @@ public class UserServiceImpl implements UserService {
         }
         log.info("Пользователь с ID {} успешно удалён", id);
     }
-
-    @Override
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь с id:" + id + " не существует"));
-    }
 }

@@ -11,7 +11,7 @@ import ru.practicum.dto.events.UpdateEventAdminRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@FeignClient(name = "admin-events", path = "/admin/events", configuration = FeignConfig.class)
+@FeignClient(name = "event-service",contextId = "adminEvent", path = "/admin/events", configuration = FeignConfig.class)
 public interface AdminEventsClient {
 
     @GetMapping()

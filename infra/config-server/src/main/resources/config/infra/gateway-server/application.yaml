@@ -20,7 +20,7 @@ spring:
         - id: user-service
           uri: lb://user-service
           predicates:
-            - Path=/admin/users/**
+            - Path=/admin/users/**, /public/users/**
           filters:
             - StripPrefix=0
         - id: category-service

@@ -22,6 +22,7 @@ import ru.practicum.errors.exception.ForbiddenActionException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
 import ru.practicum.feign.PublicCategoriesClient;
+import ru.practicum.feign.PublicUserClient;
 import ru.practicum.feign.UserClient;
 import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.RequestsMapper;
@@ -48,7 +49,7 @@ public class EventsServiceImpl implements EventsService {
     private static final int MIN_HOURS_BEFORE_EVENT = 2;
     private final EventsRepository eventRepository;
     private final PublicCategoriesClient publicCategoriesClient;
-    private final UserClient publicUserClient;
+    private final PublicUserClient publicUserClient;
     private final RequestRepository requestRepository;
     private final StatsClient statsClient;
 

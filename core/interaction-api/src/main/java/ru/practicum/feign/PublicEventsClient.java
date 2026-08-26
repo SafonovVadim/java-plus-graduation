@@ -14,7 +14,7 @@ import ru.practicum.dto.events.EventShortDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@FeignClient(name = "additional-functionality", path = "/events", configuration = FeignConfig.class)
+@FeignClient(name = "event-service", path = "/events", configuration = FeignConfig.class)
 public interface PublicEventsClient {
     @GetMapping
     ResponseEntity<List<EventShortDto>> getEvents(

@@ -15,5 +15,4 @@ public interface UserService {
     @Transactional
     void deleteById(Long id);
 
-    User findById(Long id);
 }

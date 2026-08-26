@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.categories.CategoryDto;
 
-@FeignClient(name = "admin-categories", path = "/admin/categories", configuration = FeignConfig.class)
+@FeignClient(name = "category-service",contextId = "adminCategory", path = "/admin/categories", configuration = FeignConfig.class)
 public interface AdminCategoriesClient {
 
     @PostMapping()

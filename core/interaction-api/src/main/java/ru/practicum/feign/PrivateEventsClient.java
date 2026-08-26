@@ -15,7 +15,7 @@ import ru.practicum.dto.requests.ParticipationRequestDto;
 
 import java.util.List;
 
-@FeignClient(name = "events-management", path = "/users/{userId}/events", configuration = FeignConfig.class)
+@FeignClient(name = "event-service",contextId = "privateEvenClient", path = "/users/{userId}/events", configuration = FeignConfig.class)
 public interface PrivateEventsClient {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

@@ -30,7 +30,4 @@ public interface UserClient {
     @DeleteMapping("/{userId}")
     void delete(@PathVariable @Positive Long userId);
 
-    @GetMapping("/{userId}")
-    User getUser(Long userId);
-
 }

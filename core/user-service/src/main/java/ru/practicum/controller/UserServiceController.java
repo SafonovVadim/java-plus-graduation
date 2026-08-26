@@ -33,8 +33,4 @@ public class UserServiceController implements UserClient {
         userService.deleteById(userId);
     }
 
-    @Override
-    public User getUser(Long userId) {
-        return userService.findById(userId);
-    }
 }

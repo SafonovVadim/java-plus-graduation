@@ -9,7 +9,7 @@ import ru.practicum.dto.compilations.CompilationDto;
 import ru.practicum.dto.compilations.NewCompilationDto;
 import ru.practicum.dto.compilations.UpdateCompilationRequest;
 
-@FeignClient(name = "admin-compilations", path = "/admin/compilations", configuration = FeignConfig.class)
+@FeignClient(name = "compilation-service",contextId = "adminCompilation", path = "/admin/compilations", configuration = FeignConfig.class)
 public interface AdminCompilationsClient {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
