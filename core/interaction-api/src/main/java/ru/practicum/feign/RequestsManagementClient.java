@@ -14,14 +14,14 @@ public interface RequestsManagementClient {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    ParticipationRequestDto createParticipationRequest(Long userId, @RequestParam @Positive Long eventId);
+    ParticipationRequestDto createParticipationRequest(@PathVariable Long userId, @RequestParam @Positive Long eventId);
 
     @PatchMapping("/{requestId}/cancel")
     @ResponseStatus(HttpStatus.OK)
-    ParticipationRequestDto cancelParticipationRequest(Long userId, @PathVariable Long requestId);
+    ParticipationRequestDto cancelParticipationRequest(@Positive Long userId, @PathVariable Long requestId);
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    List<ParticipationRequestDto> getUserParticipationRequests(Long userId);
+    List<ParticipationRequestDto> getUserParticipationRequests(@PathVariable Long userId);
 
 }

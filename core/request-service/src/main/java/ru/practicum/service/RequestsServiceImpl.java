@@ -37,10 +37,10 @@ public class RequestsServiceImpl implements RequestsService {
     @Transactional
     public ParticipationRequestDto createParticipationRequest(Long userId, Long eventId) {
         // 1. Проверяем существование пользователя
-        User requester = publicUserClient.getUser(userId);
+        User requester = findUserById(userId);
 
         // 2. Проверяем существование события
-        Event event = eventsRepository.getEventById(eventId);
+        Event event = eventsRepository.findById(eventId).orElseThrow(()->new NotFoundException("Ивент с id =" + eventId + " не найден"));
 
         // 3. Проверяем, что пользователь не является инициатором события
         if (event.getInitiator().getId().equals(userId)) {
@@ -129,7 +129,7 @@ public class RequestsServiceImpl implements RequestsService {
     @Override
     public List<ParticipationRequestDto> getUserParticipationRequests(Long userId) {
         // 1. Проверяем существование пользователя
-        User user = publicUserClient.getUser(userId);
+        findUserById(userId);
 
         // 2. Получаем все заявки пользователя
         List<ParticipationRequest> requests = requestRepository.findByRequesterId(userId);
@@ -138,5 +138,18 @@ public class RequestsServiceImpl implements RequestsService {
         return requests.stream()
                 .map(RequestsMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Находит пользователя по ID или выбрасывает исключение, если пользователь не найден.
+     *
+     * @param userId ID пользователя, которого нужно найти
+     * @return найденный пользователь
+     * @throws NotFoundException если пользователь с указанным ID не найден
+     */
+    private User findUserById(Long userId) {
+        User user = publicUserClient.getUser(userId);
+        log.debug("Пользователь с ID {} найден: {}", userId, user.getName());
+        return user;
     }
 }
