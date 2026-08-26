@@ -12,6 +12,7 @@ import ru.practicum.events.dto.EventState;
 import java.time.LocalDateTime;
 
 import static ru.practicum.mapper.CategoryMapper.toCategoryDto;
+import static ru.practicum.mapper.UserMapper.toShortDto;
 
 
 public class EventsMapper {
@@ -23,10 +24,31 @@ public class EventsMapper {
         dto.setCategory(toCategoryDto(event.getCategory()));
         dto.setConfirmedRequests(confirmedRequests);
         dto.setEventDate(event.getEventDate().format(Constance.FORMATTER));
-        dto.setInitiator(new UserMapper().toShortDto(event.getInitiator()));
+        dto.setInitiator(toShortDto(event.getInitiator()));
         dto.setPaid(event.getPaid());
         dto.setTitle(event.getTitle());
         dto.setViews(event.getViews());
+        return dto;
+    }
+
+    public static EventShortDto toShortEventDto(Event event) {
+        EventShortDto dto = new EventShortDto();
+        dto.setId(event.getId());
+        dto.setAnnotation(event.getAnnotation());
+        dto.setCategory(toCategoryDto(event.getCategory()));
+        dto.setConfirmedRequests(event.getConfirmedRequests());
+        dto.setEventDate(event.getEventDate().format(Constance.FORMATTER));
+        dto.setInitiator(toShortDto(event.getInitiator()));
+        dto.setPaid(event.getPaid());
+        dto.setTitle(event.getTitle());
+        dto.setViews(event.getViews());
+        return dto;
+    }
+
+    public static EventShortDto toShortEventDtoById(Long eventId, Long confirmedRequests) {
+        EventShortDto dto = new EventShortDto();
+        dto.setId(eventId);
+        dto.setConfirmedRequests(confirmedRequests);
         return dto;
     }
 

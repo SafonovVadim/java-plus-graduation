@@ -7,8 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class NewCompilationDto {
 
-    private List<Long> events = new ArrayList<>();
+    private Set<Long> events = new HashSet<>();
 
     private Boolean pinned = false;
 

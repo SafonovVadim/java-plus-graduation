@@ -95,4 +95,9 @@ public class PublicEventsController implements PublicEventsClient {
         EventFullDto event = eventService.getPublishedEventById(id);
         return ResponseEntity.ok(event);
     }
+
+    @Override
+    public EventShortDto getEventShort(Long eventId) {
+        return null;
+    }
 }

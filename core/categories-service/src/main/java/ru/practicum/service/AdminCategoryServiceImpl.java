@@ -8,7 +8,7 @@ import ru.practicum.entity.Category;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.mapper.CategoryMapper;
-import ru.practicum.repository.CategoryRepository;
+import ru.practicum.CategoryRepository;
 
 @Service
 @RequiredArgsConstructor

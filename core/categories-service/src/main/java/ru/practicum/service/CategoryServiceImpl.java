@@ -8,7 +8,7 @@ import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.entity.Category;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.mapper.CategoryMapper;
-import ru.practicum.repository.CategoryRepository;
+import ru.practicum.CategoryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;

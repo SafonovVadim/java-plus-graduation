@@ -11,7 +11,6 @@ import ru.practicum.entity.User;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
-import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.feign.UserClient;
 import ru.practicum.mapper.RequestsMapper;
 import ru.practicum.repository.EventsRepository;

@@ -93,8 +93,8 @@ public class PublicEventsServiceImpl implements PublicEventsService {
     }
 
     @Override
-    public Event getEventById(Long id) {
-        return eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
+    public EventShortDto getEventShort(Long id) {
+        return toShortEventDto(eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found")));
     }
 
     private List<ViewStats> getStats(List<String> uris) {
