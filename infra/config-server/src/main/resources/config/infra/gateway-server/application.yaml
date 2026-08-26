@@ -23,26 +23,22 @@ spring:
             - Path=/admin/users/**
           filters:
             - StripPrefix=0
-        - id: administration
-          uri: lb://administration
-          predicates:
-            - Path=/admin/categories/**, /admin/compilations/**, /admin/events/**
         - id: categories-service
           uri: lb://categories-service
           predicates:
-            - Path=/categories/**
+            - Path=/categories/**,/admin/categories/**
           filters:
             - StripPrefix=0
         - id: compilation-service
           uri: lb://compilation-service
           predicates:
-            - Path=/compilations/**
+            - Path=/compilations/**,/admin/compilations/**
           filters:
             - StripPrefix=0
         - id: event-service
           uri: lb://event-service
           predicates:
-            - Path=/events/**, users/{userId}/events/**
+            - Path=/events/**,users/{userId}/events/**,/admin/events/**
           filters:
             - StripPrefix=0
 
