@@ -26,27 +26,27 @@ public interface PrivateEventsClient {
     @PatchMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     EventFullDto updateEvent(
-            Long userId,
+            @Positive Long userId,
             @PathVariable @Positive Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest);
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     List<EventFullDto> getUserEvents(
-            @PathVariable @Positive Long userId,
+            @Positive Long userId,
             @RequestParam(defaultValue = "0") @Min(0) Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size);
 
     @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     EventFullDto getUserEventById(
-            Long userId,
+            @Positive Long userId,
             @PathVariable @Positive Long eventId);
 
     @PatchMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
     EventRequestStatusUpdateResult updateRequestStatus(
-            Long userId,
+            @Positive Long userId,
             @PathVariable Long eventId,
             @RequestBody EventRequestStatusUpdateRequest request);
 

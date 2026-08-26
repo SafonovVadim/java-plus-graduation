@@ -33,7 +33,7 @@ public class PrivatePrivateEventsController implements PrivateEventsClient {
 
     @Override
     public EventFullDto updateEvent(
-            @PathVariable @Positive Long userId,
+            @Positive Long userId,
             @PathVariable @Positive Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
 
@@ -42,7 +42,7 @@ public class PrivatePrivateEventsController implements PrivateEventsClient {
 
     @Override
     public List<EventFullDto> getUserEvents(
-            @PathVariable @Positive Long userId,
+            @Positive Long userId,
             @RequestParam(defaultValue = "0") @Min(0) Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
 
@@ -51,7 +51,7 @@ public class PrivatePrivateEventsController implements PrivateEventsClient {
 
     @Override
     public EventFullDto getUserEventById(
-            @PathVariable @Positive Long userId,
+            @Positive Long userId,
             @PathVariable @Positive Long eventId) {
         return eventsService.getUserEventById(userId, eventId);
     }
