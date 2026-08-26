@@ -38,7 +38,7 @@ spring:
         - id: event-service
           uri: lb://event-service
           predicates:
-            - Path=/events/**, users/*/events/**, /admin/events/**
+            - Path=/events/**, /users/*/events/**, /admin/events/**
           filters:
             - StripPrefix=0
 
