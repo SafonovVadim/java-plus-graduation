@@ -57,7 +57,7 @@ public class PrivatePrivateEventsController implements PrivateEventsClient {
     }
 
     @Override
-    public EventRequestStatusUpdateResult updateRequestStatus(@PathVariable Long userId, @PathVariable Long eventId, EventRequestStatusUpdateRequest request) {
+    public EventRequestStatusUpdateResult updateRequestStatus(@PathVariable Long userId, @PathVariable Long eventId, @RequestBody EventRequestStatusUpdateRequest request) {
         return eventsService.updateRequestStatuses(userId, eventId, request);
     }
 

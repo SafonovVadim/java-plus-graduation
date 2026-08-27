@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.ViewStats;
 import ru.practicum.dto.events.EventFullDto;
+import ru.practicum.dto.events.Location;
 import ru.practicum.dto.events.UpdateEventAdminRequest;
 import ru.practicum.dto.events.UpdateEventRequest;
 import ru.practicum.entity.Category;
@@ -58,7 +59,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
         List<Predicate> predicates = new ArrayList<>();
 
         if (userIds != null && !userIds.isEmpty()) {
-            predicates.add(root.get("initiator").get("id").in(userIds));
+            predicates.add(root.get("initiatorId").in(userIds));
         }
 
         if (states != null && !states.isEmpty()) {
@@ -69,7 +70,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
         }
 
         if (categoryIds != null && !categoryIds.isEmpty()) {
-            predicates.add(root.get("category").get("id").in(categoryIds));
+            predicates.add(root.get("categoryId").in(categoryIds));
         }
 
         if (rangeStart != null) {
@@ -124,14 +125,14 @@ public class AdminEventsServiceImpl implements AdminEventsService {
                 }
             }
         }
-
         applyNonNullUpdates(event, request);
 
-        event.setConfirmedRequests(requestRepository.countByEventIdAndStatus(event.getId(), ru.practicum.events.dto.EventState.CONFIRMED));
+        Event saved = eventsRepository.save(event);
+        saved.setConfirmedRequests(requestRepository.countByEventIdAndStatus(saved.getId(), ru.practicum.events.dto.EventState.CONFIRMED));
 
-        setViewsToEvent(event);
+        setViewsToEvent(saved);
 
-        return EventsMapper.toEventFullDto(event);
+        return EventsMapper.toEventFullDto(saved);
     }
 
     /**
@@ -178,12 +179,11 @@ public class AdminEventsServiceImpl implements AdminEventsService {
             event.setRequestModeration(request.getRequestModeration());
         }
         if (request.getLocation() != null) {
-            event.setLocationLat(request.getLocation().getLat());
-            event.setLocationLon(request.getLocation().getLon());
+            event.setLocation(request.getLocation());
         }
         if (request.getCategory() != null) {
             Category category = toCategory(publicCategoriesClient.getCategoryById(request.getCategory()));
-            event.setCategory(category);
+            event.setCategory(category.getId());
         }
         if (request.getEventDate() != null) {
             event.setEventDate(request.getEventDate());

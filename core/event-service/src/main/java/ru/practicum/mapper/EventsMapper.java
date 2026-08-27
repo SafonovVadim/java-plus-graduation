@@ -1,9 +1,11 @@
 package ru.practicum.mapper;
 
+import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.dto.events.Location;
 import ru.practicum.dto.events.NewEventDto;
+import ru.practicum.dto.users.UserShortDto;
 import ru.practicum.entity.Category;
 import ru.practicum.entity.Event;
 import ru.practicum.entity.User;
@@ -21,10 +23,14 @@ public class EventsMapper {
         EventShortDto dto = new EventShortDto();
         dto.setId(event.getId());
         dto.setAnnotation(event.getAnnotation());
-        dto.setCategory(toCategoryDto(event.getCategory()));
+        dto.setCategory(new CategoryDto() {{
+            setId(event.getCategory());
+        }});
         dto.setConfirmedRequests(confirmedRequests);
         dto.setEventDate(event.getEventDate().format(Constance.FORMATTER));
-        dto.setInitiator(toShortDto(event.getInitiator()));
+        dto.setInitiator(new UserShortDto() {{
+            setId(event.getInitiatorId());
+        }});
         dto.setPaid(event.getPaid());
         dto.setTitle(event.getTitle());
         dto.setViews(event.getViews());
@@ -35,10 +41,14 @@ public class EventsMapper {
         EventShortDto dto = new EventShortDto();
         dto.setId(event.getId());
         dto.setAnnotation(event.getAnnotation());
-        dto.setCategory(toCategoryDto(event.getCategory()));
+        dto.setCategory(new CategoryDto() {{
+            setId(event.getCategory());
+        }});
         dto.setConfirmedRequests(event.getConfirmedRequests());
         dto.setEventDate(event.getEventDate().format(Constance.FORMATTER));
-        dto.setInitiator(toShortDto(event.getInitiator()));
+        dto.setInitiator(new UserShortDto() {{
+            setId(event.getInitiatorId());
+        }});
         dto.setPaid(event.getPaid());
         dto.setTitle(event.getTitle());
         dto.setViews(event.getViews());
@@ -56,13 +66,17 @@ public class EventsMapper {
         EventFullDto dto = new EventFullDto();
         dto.setId(event.getId());
         dto.setAnnotation(event.getAnnotation());
-        dto.setCategory(toCategoryDto(event.getCategory()));
+        dto.setCategory(new CategoryDto() {{
+            setId(event.getCategory());
+        }});
         dto.setConfirmedRequests(event.getConfirmedRequests());
         dto.setCreatedOn(format(event.getCreatedOn()));
         dto.setDescription(event.getDescription());
         dto.setEventDate(event.getEventDate().format(Constance.FORMATTER));
-        dto.setInitiator(new UserMapper().toShortDto(event.getInitiator()));
-        dto.setLocation(new Location(event.getLocationLat(), event.getLocationLon()));
+        dto.setInitiator(new UserShortDto() {{
+            setId(event.getInitiatorId());
+        }});
+        dto.setLocation(event.getLocation());
         dto.setPaid(event.getPaid());
         dto.setParticipantLimit(event.getParticipantLimit());
         dto.setPublishedOn(event.getPublishedOn() != null ? format(event.getPublishedOn()) : null);
@@ -83,18 +97,17 @@ public class EventsMapper {
     public static Event toEvent(NewEventDto dto, User user, Category category) {
         return Event.builder()
                 .annotation(dto.getAnnotation())
-                .category(category)
+                .category(category.getId())
                 .description(dto.getDescription())
                 .title(dto.getTitle())
                 .eventDate(dto.getEventDate())
                 .paid(dto.getPaid())
                 .participantLimit(dto.getParticipantLimit())
                 .requestModeration(dto.getRequestModeration())
-                .locationLat(dto.getLocation().getLat())
-                .locationLon(dto.getLocation().getLon())
+                .location(dto.getLocation())
                 .createdOn(LocalDateTime.now())
                 .state(EventState.PENDING)
-                .initiator(user)
+                .initiatorId(user.getId())
                 .confirmedRequests(0L)
                 .views(0L)
                 .build();

@@ -98,6 +98,6 @@ public class PublicEventsController implements PublicEventsClient {
 
     @Override
     public EventShortDto getEventShort(@PathVariable Long eventId) {
-        return null;
+        return eventService.getEventShort(eventId);
     }
 }

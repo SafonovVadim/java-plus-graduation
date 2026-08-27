@@ -2,6 +2,7 @@
 
     import jakarta.persistence.*;
     import lombok.*;
+    import ru.practicum.dto.events.Location;
     import ru.practicum.events.dto.EventState;
 
     import java.time.LocalDateTime;
@@ -23,9 +24,8 @@
         @Column(nullable = false, length = 2000)
         private String annotation;
 
-        @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "category_id", nullable = false)
-        private Category category;
+        @Column(name = "category_id", nullable = false)
+        private Long category;
 
         @Column(name = "confirmed_requests", nullable = false)
         private Long confirmedRequests = 0L;
@@ -39,15 +39,15 @@
         @Column(name = "event_date", nullable = false)
         private LocalDateTime eventDate;
 
-        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "initiator_id", nullable = false)
-        private User initiator;
+        private Long initiatorId;
 
-        @Column(name = "location_lat")
-        private Float locationLat;
-
-        @Column(name = "location_lon")
-        private Float locationLon;
+        @Embedded
+        @AttributeOverrides({
+                @AttributeOverride(name = "lat", column = @Column(name = "location_lat")),
+                @AttributeOverride(name = "lon", column = @Column(name = "location_lon"))
+        })
+        private Location location;
 
         @Column(nullable = false)
         private Boolean paid;

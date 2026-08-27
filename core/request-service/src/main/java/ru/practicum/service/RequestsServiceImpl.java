@@ -14,6 +14,7 @@ import ru.practicum.events.dto.EventState;
 import ru.practicum.feign.PublicUserClient;
 import ru.practicum.feign.UserClient;
 import ru.practicum.mapper.RequestsMapper;
+import ru.practicum.mapper.UserMapper;
 import ru.practicum.repository.EventsRepository;
 import ru.practicum.repository.RequestRepository;
 
@@ -43,7 +44,7 @@ public class RequestsServiceImpl implements RequestsService {
         Event event = eventsRepository.findById(eventId).orElseThrow(()->new NotFoundException("Ивент с id =" + eventId + " не найден"));
 
         // 3. Проверяем, что пользователь не является инициатором события
-        if (event.getInitiator().getId().equals(userId)) {
+        if (event.getInitiatorId().equals(userId)) {
             throw new ConflictException("User cannot request participation in their own event");
         }
 
@@ -148,7 +149,7 @@ public class RequestsServiceImpl implements RequestsService {
      * @throws NotFoundException если пользователь с указанным ID не найден
      */
     private User findUserById(Long userId) {
-        User user = publicUserClient.getUser(userId);
+        User user = UserMapper.toUser(publicUserClient.getUser(userId));
         log.debug("Пользователь с ID {} найден: {}", userId, user.getName());
         return user;
     }

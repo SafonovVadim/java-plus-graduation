@@ -81,8 +81,12 @@ public class PublicEventsServiceImpl implements PublicEventsService {
 
     @Override
     public EventFullDto getPublishedEventById(Long id) {
-        Event event = eventRepository.findByIdAndState(id, EventState.PUBLISHED)
+        Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
+
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new NotFoundException("Событие с id=" + id + " не найдено");
+        }
 
         long confirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), EventState.CONFIRMED);
         event.setConfirmedRequests(confirmedRequests);

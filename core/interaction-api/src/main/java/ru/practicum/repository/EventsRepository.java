@@ -17,9 +17,9 @@ public interface EventsRepository extends JpaRepository<Event, Long>, JpaSpecifi
     Optional<Event> findByIdAndState(Long id, EventState state);
 
     @Query("SELECT e FROM Event e WHERE " +
-            "(:users IS NULL OR e.initiator.id IN :users) AND " +
+            "(:users IS NULL OR e.initiatorId IN :users) AND " +
             "(:states IS NULL OR e.state IN :states) AND " +
-            "(:categories IS NULL OR e.category.id IN :categories) AND " +
+            "(:categories IS NULL OR e.category IN :categories) AND " +
             "(:rangeStart IS NULL OR e.eventDate >= :rangeStart) AND " +
             "(:rangeEnd IS NULL OR e.eventDate <= :rangeEnd)")
     List<Event> findByFilters(
@@ -35,7 +35,7 @@ public interface EventsRepository extends JpaRepository<Event, Long>, JpaSpecifi
             "(:text IS NULL OR " +
             "LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%')) OR " +
             "LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%'))) AND " +
-            "(:categories IS NULL OR e.category.id IN :categories) AND " +
+            "(:categories IS NULL OR e.category IN :categories) AND " +
             "(:paid IS NULL OR e.paid = :paid) AND " +
             "(e.eventDate >= :rangeStart) AND " +
             "(:rangeEnd IS NULL OR e.eventDate <= :rangeEnd)")
@@ -58,6 +58,9 @@ public interface EventsRepository extends JpaRepository<Event, Long>, JpaSpecifi
 
     Event getEventById(Long id);
 
-    Optional<Event> findByIdAndInitiatorId(Long eventId, Long userId);
+    Optional<Event> findEventByIdAndInitiatorId(Long eventId, Long initiatorId);
+
+    @Query("SELECT e.participantLimit FROM Event e WHERE e.id = :id")
+    Integer getParticipantLimit(Long id);
 }
 
