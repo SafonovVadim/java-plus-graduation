@@ -5,12 +5,14 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.ViewStats;
+import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.Location;
 import ru.practicum.dto.events.UpdateEventAdminRequest;
@@ -31,7 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ru.practicum.dto.events.StateAction.PUBLISH_EVENT;
+import static ru.practicum.dto.events.StateAction.REJECT_EVENT;
+import static ru.practicum.events.dto.EventState.CONFIRMED;
 import static ru.practicum.mapper.CategoryMapper.toCategory;
+import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 
 @Service
 @RequiredArgsConstructor
@@ -103,36 +109,49 @@ public class AdminEventsServiceImpl implements AdminEventsService {
     @Transactional
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request) {
         Event event = eventsRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+
+        if (request.getAnnotation() != null) event.setAnnotation(request.getAnnotation());
+        if (request.getCategory() != null) {
+            CategoryDto category = publicCategoriesClient.getCategoryById(request.getCategory());
+            if (category == null) {
+                throw new NotFoundException("Категория с id=" + request.getCategory() + " не найдена");
+            }
+            event.setCategory(category.getId());
+        }
+        if (request.getDescription() != null) event.setDescription(request.getDescription());
+        if (request.getEventDate() != null) {
+            if (request.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+                throw new BadRequestException("Дата начала события должна быть не ранее чем за час от даты публикации");
+            }
+            event.setEventDate(request.getEventDate());
+        }
+        if (request.getLocation() != null) event.setLocation(request.getLocation());
+        if (request.getPaid() != null) event.setPaid(request.getPaid());
+        if (request.getParticipantLimit() != null) event.setParticipantLimit(request.getParticipantLimit());
+        if (request.getRequestModeration() != null) event.setRequestModeration(request.getRequestModeration());
+        if (request.getTitle() != null) event.setTitle(request.getTitle());
 
         if (request.getStateAction() != null) {
-            switch (request.getStateAction()) {
-                case PUBLISH_EVENT -> {
-                    if (!event.getState().equals(ru.practicum.events.dto.EventState.PENDING)) {
-                        throw new ConflictException("Cannot publish event in state: " + event.getState());
-                    }
-                    if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-                        throw new ConflictException("Event must be at least 1 hour after current time to be published");
-                    }
-                    event.setState(ru.practicum.events.dto.EventState.PUBLISHED);
-                    event.setPublishedOn(LocalDateTime.now());
+            if (request.getStateAction().equals(PUBLISH_EVENT)) {
+                if (event.getState() != ru.practicum.events.dto.EventState.PENDING) {
+                    throw new ConflictException("Опубликовать можно только событие в статусе PENDING");
                 }
-                case REJECT_EVENT -> {
-                    if (event.getState().equals(ru.practicum.events.dto.EventState.PUBLISHED)) {
-                        throw new ConflictException("Cannot reject published event");
-                    }
-                    event.setState(ru.practicum.events.dto.EventState.CANCELED);
+                event.setState(ru.practicum.events.dto.EventState.PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
+            } else if (request.getStateAction().equals(REJECT_EVENT)) {
+                if (event.getState() == ru.practicum.events.dto.EventState.PUBLISHED) {
+                    throw new ConflictException("Нельзя отклонить уже опубликованное событие");
                 }
+                event.setState(ru.practicum.events.dto.EventState.CANCELED);
             }
         }
-        applyNonNullUpdates(event, request);
 
         Event saved = eventsRepository.save(event);
-        saved.setConfirmedRequests(requestRepository.countByEventIdAndStatus(saved.getId(), ru.practicum.events.dto.EventState.CONFIRMED));
-
+        Long confirmed = requestRepository.countByEventIdAndStatus(saved.getId(), CONFIRMED);
+        saved.setConfirmedRequests(confirmed);
         setViewsToEvent(saved);
-
-        return EventsMapper.toEventFullDto(saved);
+        return toEventFullDto(saved);
     }
 
     /**
@@ -148,7 +167,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
                 .map(Event::getId)
                 .collect(Collectors.toList());
 
-        List<Object[]> results = requestRepository.countConfirmedRequestsByEventIds(eventIds, ru.practicum.events.dto.EventState.CONFIRMED);
+        List<Object[]> results = requestRepository.countConfirmedRequestsByEventIds(eventIds, CONFIRMED);
 
         return results.stream()
                 .collect(Collectors.toMap(

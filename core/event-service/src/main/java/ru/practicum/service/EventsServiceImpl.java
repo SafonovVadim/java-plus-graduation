@@ -271,40 +271,6 @@ public class EventsServiceImpl implements EventsService {
         return EventsMapper.toEventFullDto(saved);
     }
 
-    /**
-     * Применяет к сущности Event только те изменения из запроса, которые не равны null.
-     */
-    private <T extends UpdateEventRequest> void applyNonNullUpdates(Event event, T request) {
-        if (request.getAnnotation() != null) {
-            event.setAnnotation(request.getAnnotation());
-        }
-        if (request.getDescription() != null) {
-            event.setDescription(request.getDescription());
-        }
-        if (request.getTitle() != null) {
-            event.setTitle(request.getTitle());
-        }
-        if (request.getPaid() != null) {
-            event.setPaid(request.getPaid());
-        }
-        if (request.getParticipantLimit() != null) {
-            event.setParticipantLimit(request.getParticipantLimit());
-        }
-        if (request.getRequestModeration() != null) {
-            event.setRequestModeration(request.getRequestModeration());
-        }
-        if (request.getLocation() != null) {
-            event.setLocation(new Location(request.getLocation().getLat(), request.getLocation().getLon()));
-        }
-        if (request.getCategory() != null) {
-            Category category = toCategory(publicCategoriesClient.getCategoryById(request.getCategory()));
-            event.setCategory(category.getId());
-        }
-        if (request.getEventDate() != null) {
-            event.setEventDate(request.getEventDate());
-        }
-    }
-
     @Override
     public List<EventFullDto> getUserEvents(Long userId, int from, int size) {
         log.debug("Начинаем поиск событий для пользователя с ID: {}, from: {}, size: {}", userId, from, size);
