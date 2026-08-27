@@ -33,7 +33,7 @@ public class PrivatePrivateEventsController implements PrivateEventsClient {
 
     @Override
     public EventFullDto updateEvent(
-            @Positive Long userId,
+            @PathVariable @Positive Long userId,
             @PathVariable @Positive Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
 
@@ -42,7 +42,7 @@ public class PrivatePrivateEventsController implements PrivateEventsClient {
 
     @Override
     public List<EventFullDto> getUserEvents(
-            @Positive Long userId,
+            @PathVariable @Positive Long userId,
             @RequestParam(defaultValue = "0") @Min(0) Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
 
@@ -51,18 +51,18 @@ public class PrivatePrivateEventsController implements PrivateEventsClient {
 
     @Override
     public EventFullDto getUserEventById(
-            @Positive Long userId,
+            @PathVariable @Positive Long userId,
             @PathVariable @Positive Long eventId) {
         return eventsService.getUserEventById(userId, eventId);
     }
 
     @Override
-    public EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
+    public EventRequestStatusUpdateResult updateRequestStatus(@PathVariable Long userId, @PathVariable Long eventId, EventRequestStatusUpdateRequest request) {
         return eventsService.updateRequestStatuses(userId, eventId, request);
     }
 
     @Override
-    public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
+    public List<ParticipationRequestDto> getEventRequests(@PathVariable Long userId, @PathVariable Long eventId) {
         return eventsService.getEventRequests(userId, eventId);
     }
 }

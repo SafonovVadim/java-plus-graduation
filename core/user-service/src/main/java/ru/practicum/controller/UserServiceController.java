@@ -1,6 +1,7 @@
 package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.users.NewUserRequest;
@@ -29,8 +30,7 @@ public class UserServiceController implements UserClient {
     }
 
     @Override
-    public void delete(Long userId) {
+    public void delete(@PathVariable Long userId) {
         userService.deleteById(userId);
     }
-
 }

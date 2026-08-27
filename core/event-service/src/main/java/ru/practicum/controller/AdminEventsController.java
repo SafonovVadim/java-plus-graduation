@@ -2,6 +2,7 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.events.EventFullDto;
@@ -24,7 +25,7 @@ public class AdminEventsController implements AdminEventsClient {
     }
 
     @Override
-    public ResponseEntity<EventFullDto> updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest) {
+    public ResponseEntity<EventFullDto> updateEventByAdmin(@PathVariable Long eventId, UpdateEventAdminRequest updateRequest) {
         return ResponseEntity.ok(adminEventsService.updateEventByAdmin(eventId, updateRequest));
     }
 }

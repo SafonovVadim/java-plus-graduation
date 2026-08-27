@@ -25,7 +25,7 @@ public class RequestsController implements RequestsManagementClient {
     }
 
     @Override
-    public ParticipationRequestDto cancelParticipationRequest(@Positive Long userId, Long requestId) {
+    public ParticipationRequestDto cancelParticipationRequest(@PathVariable Long userId, Long requestId) {
         return requestsService.cancelParticipationRequest(userId, requestId);
     }
 
