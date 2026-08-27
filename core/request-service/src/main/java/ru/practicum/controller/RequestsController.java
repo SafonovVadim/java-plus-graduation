@@ -20,12 +20,12 @@ public class RequestsController implements RequestsManagementClient {
     private final RequestsService requestsService;
 
     @Override
-    public ParticipationRequestDto createParticipationRequest(@PathVariable Long userId, Long eventId) {
+    public ParticipationRequestDto createParticipationRequest(@PathVariable Long userId, @PathVariable Long eventId) {
         return requestsService.createParticipationRequest(userId, eventId);
     }
 
     @Override
-    public ParticipationRequestDto cancelParticipationRequest(@PathVariable Long userId, Long requestId) {
+    public ParticipationRequestDto cancelParticipationRequest(@PathVariable Long userId, @PathVariable Long requestId) {
         return requestsService.cancelParticipationRequest(userId, requestId);
     }
 

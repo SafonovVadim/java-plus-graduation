@@ -2,6 +2,7 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.compilations.CompilationDto;
@@ -17,12 +18,12 @@ public class AdminCompilationsController implements AdminCompilationsClient {
     private final AdminCompilationService adminCompilationService;
 
     @Override
-    public CompilationDto createCompilation(NewCompilationDto dto) {
+    public CompilationDto createCompilation(@RequestBody NewCompilationDto dto) {
         return adminCompilationService.createCompilation(dto);
     }
 
     @Override
-    public CompilationDto updateCompilation(@PathVariable Long compId, UpdateCompilationRequest request) {
+    public CompilationDto updateCompilation(@PathVariable Long compId,@RequestBody UpdateCompilationRequest request) {
         return adminCompilationService.updateCompilation(compId, request);
     }
 

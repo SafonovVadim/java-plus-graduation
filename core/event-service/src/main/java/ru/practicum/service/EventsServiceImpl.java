@@ -23,7 +23,6 @@ import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
 import ru.practicum.feign.PublicCategoriesClient;
 import ru.practicum.feign.PublicUserClient;
-import ru.practicum.feign.UserClient;
 import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.RequestsMapper;
 import ru.practicum.repository.EventsRepository;
@@ -350,8 +349,12 @@ public class EventsServiceImpl implements EventsService {
             Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
 
         // 1. Проверяем существование события и принадлежность пользователю
-        Event event = eventRepository.getEventById(eventId);
-
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Событие с id=" + eventId + " не найдено у пользователя с id=" + userId));
+        if (event.getState() != EventState.PENDING && event.getState() != EventState.CANCELED) {
+            throw new ConflictException("Редактировать можно только отменённые или ожидающие модерацию события");
+        }
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ForbiddenActionException("User is not the initiator of the event");
         }
@@ -367,14 +370,6 @@ public class EventsServiceImpl implements EventsService {
             throw new NotFoundException("No requests found for the given IDs");
         }
 
-        // 4. Проверяем, что все заявки в статусе PENDING (409 CONFLICT)
-        boolean allPending = requests.stream()
-                .allMatch(r -> r.getStatus() == EventState.PENDING);
-        if (!allPending) {
-            throw new ConflictException("All requests must be in PENDING status");
-        }
-
-        // 5. Проверяем лимит участников с учётом новых подтверждений
         long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, EventState.CONFIRMED);
         int newConfirmedCount = (int) confirmedCount + request.getRequestIds().size();
 
@@ -382,7 +377,6 @@ public class EventsServiceImpl implements EventsService {
         List<ParticipationRequest> rejected = new ArrayList<>();
 
         if (newConfirmedCount > event.getParticipantLimit()) {
-            // 6. Автоматическое отклонение всех неподтверждённых заявок при исчерпании лимита
             List<ParticipationRequest> allPendingRequests = requestRepository
                     .findByEventIdAndStatus(eventId, EventState.PENDING);
 
@@ -394,7 +388,6 @@ public class EventsServiceImpl implements EventsService {
 
             throw new ConflictException("The participant limit has been reached. All pending requests have been rejected.");
         } else {
-            // 7. Обычное обновление статусов
             for (ParticipationRequest req : requests) {
                 if (request.getStatus() == EventState.CONFIRMED) {
                     req.setStatus(EventState.CONFIRMED);

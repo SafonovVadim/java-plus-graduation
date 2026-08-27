@@ -1,9 +1,7 @@
 package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.users.NewUserRequest;
 import ru.practicum.dto.users.UserDto;
 import ru.practicum.entity.User;
@@ -20,12 +18,12 @@ public class UserServiceController implements UserClient {
     private final UserService userService;
 
     @Override
-    public UserDto createUser(NewUserRequest request) {
+    public UserDto createUser(@RequestBody NewUserRequest request) {
         return userService.save(request);
     }
 
     @Override
-    public List<UserDto> get(List<Long> ids, int offset, int size) {
+    public List<UserDto> get(@RequestParam List<Long> ids, @RequestParam int offset, @RequestParam int size) {
         return userService.findByIdsOrAllWithPagination(ids, offset, size);
     }
 

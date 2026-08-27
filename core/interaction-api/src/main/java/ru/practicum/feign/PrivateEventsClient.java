@@ -52,6 +52,6 @@ public interface PrivateEventsClient {
 
     @GetMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    List<ParticipationRequestDto> getEventRequests(Long userId, @PathVariable Long eventId);
+    List<ParticipationRequestDto> getEventRequests(@Positive Long userId, @PathVariable Long eventId);
 
 }
