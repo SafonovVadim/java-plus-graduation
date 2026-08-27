@@ -29,7 +29,7 @@ public class EventSpecification {
         if (categoryIds == null || categoryIds.isEmpty()) {
             return Specification.where(null);
         }
-        return (root, query, cb) -> root.get("category").get("id").in(categoryIds);
+        return (root, query, cb) -> root.get("category").in(categoryIds);
     }
 
     public static Specification<Event> isPaid(Boolean paid) {

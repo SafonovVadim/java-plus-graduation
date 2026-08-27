@@ -70,7 +70,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
         }
 
         if (categoryIds != null && !categoryIds.isEmpty()) {
-            predicates.add(root.get("categoryId").in(categoryIds));
+            predicates.add(root.get("category").in(categoryIds));
         }
 
         if (rangeStart != null) {
