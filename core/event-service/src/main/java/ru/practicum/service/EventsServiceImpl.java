@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import ru.practicum.EventsRepository;
 import ru.practicum.StatsClient;
@@ -17,6 +16,7 @@ import ru.practicum.dto.events.UpdateEventUserRequest;
 import ru.practicum.dto.users.UserDto;
 import ru.practicum.entity.Event;
 import ru.practicum.entity.User;
+import ru.practicum.errors.exception.BadRequestException;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.ForbiddenActionException;
 import ru.practicum.errors.exception.NotFoundException;
@@ -144,7 +144,7 @@ public class EventsServiceImpl implements EventsService {
             event.setDescription(updateEventUserRequest.getDescription());
         if (updateEventUserRequest.getEventDate() != null) {
             if (updateEventUserRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new ConflictException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
+                throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
             }
             event.setEventDate(updateEventUserRequest.getEventDate());
         }
