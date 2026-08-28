@@ -35,7 +35,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @SneakyThrows
     public EventRequestStatusUpdateResult updateRequestStatuses(
             Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
-        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId, eventId));
+        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(eventId));
         if (!event.getInitiatorId().equals(userId)) {
             throw new ConflictException("Только инициатор события может изменять статусы заявок");
         }
@@ -94,7 +94,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         // 1. Проверяем существование события и принадлежность пользователю
-        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId, eventId));
+        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(eventId));
 
         if (!event.getInitiatorId().equals(userId)) {
             throw new ForbiddenActionException("User is not the initiator of the event");

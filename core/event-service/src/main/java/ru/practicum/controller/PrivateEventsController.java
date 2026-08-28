@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.NewEventDto;
 import ru.practicum.dto.events.UpdateEventUserRequest;
@@ -16,40 +18,43 @@ import java.util.List;
 @RestController
 @RequestMapping("/users/{userId}/events")
 @RequiredArgsConstructor
-public class PrivatePrivateEventsController implements PrivateEventsClient {
+public class PrivateEventsController implements PrivateEventsClient {
 
     private final EventsService eventsService;
 
+    private Long extractUserId() {
+        String path = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                .getRequest().getPathInfo();
+        return Long.parseLong(path.substring("/users/".length()));
+    }
+
     @Override
     public EventFullDto addEvent(
-            @Valid @RequestBody NewEventDto newEventDto,
-            @PathVariable @Positive Long userId) {
+            @Valid @RequestBody NewEventDto newEventDto) {
 
-        return eventsService.saveEvent(newEventDto, userId);
+        return eventsService.saveEvent(newEventDto, extractUserId());
     }
 
     @Override
     public EventFullDto updateEvent(
-            @PathVariable @Positive Long userId,
-            @PathVariable @Positive Long eventId,
+            @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
 
-        return eventsService.updateInactiveEvent(userId, eventId, updateEventUserRequest);
+        return eventsService.updateInactiveEvent(extractUserId(), eventId, updateEventUserRequest);
     }
 
     @Override
     public List<EventFullDto> getUserEvents(
-            @PathVariable @Positive Long userId,
             @RequestParam(defaultValue = "0") @Min(0) Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
 
-        return eventsService.getUserEvents(userId, from, size);
+        return eventsService.getUserEvents(extractUserId(), from, size);
     }
 
     @Override
     public EventFullDto getUserEventById(
-            @PathVariable @Positive Long userId,
-            @PathVariable @Positive Long eventId) {
-        return eventsService.getUserEventById(userId, eventId);
+            @PathVariable Long eventId) {
+        return eventsService.getUserEventById(extractUserId(), eventId);
     }
 }
+
