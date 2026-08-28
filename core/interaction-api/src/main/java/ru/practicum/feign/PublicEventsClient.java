@@ -65,4 +65,7 @@ public interface PublicEventsClient {
 
     @GetMapping("/{eventId}/full")
     Event getEvent(@PathVariable Long eventId);
+
+    @GetMapping("/category/{categoryId}")
+    Boolean checkEventByCategory(@PathVariable Long categoryId);
 }

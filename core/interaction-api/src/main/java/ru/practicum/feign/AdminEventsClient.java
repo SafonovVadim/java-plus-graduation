@@ -11,11 +11,11 @@ import ru.practicum.dto.events.UpdateEventAdminRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@FeignClient(name = "event-service",contextId = "adminEvent", path = "/admin/events", configuration = FeignConfig.class)
+@FeignClient(name = "event-service", contextId = "adminEvent", path = "/admin/events", configuration = FeignConfig.class)
 public interface AdminEventsClient {
 
     @GetMapping()
-    ResponseEntity<List<EventFullDto>> getEvents(
+    List<EventFullDto> getEvents(
             @RequestParam(required = false) List<Long> users,
             @RequestParam(required = false) List<String> states,
             @RequestParam(required = false) List<Long> categories,
@@ -26,5 +26,5 @@ public interface AdminEventsClient {
     );
 
     @PatchMapping("/{eventId}")
-    ResponseEntity<EventFullDto> updateEventByAdmin(@PathVariable Long eventId, @Valid @RequestBody UpdateEventAdminRequest updateRequest);
+    EventFullDto updateEventByAdmin(@PathVariable Long eventId, @Valid @RequestBody UpdateEventAdminRequest updateRequest);
 }

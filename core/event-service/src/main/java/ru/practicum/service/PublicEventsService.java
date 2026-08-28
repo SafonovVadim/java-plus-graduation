@@ -27,5 +27,5 @@ public interface PublicEventsService {
     EventShortDto getEventShort(Long id);
 
     Event getEvent(Long id);
-
+    Boolean getEventByCategory(Long categoryId);
 }

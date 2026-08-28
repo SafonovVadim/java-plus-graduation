@@ -132,4 +132,9 @@ public class PublicEventsServiceImpl implements PublicEventsService {
             event.setViews(views);
         });
     }
+
+    @Override
+    public Boolean getEventByCategory(Long categoryId) {
+        return eventsRepository.existsByCategory(categoryId);
+    }
 }

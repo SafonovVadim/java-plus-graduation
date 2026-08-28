@@ -8,12 +8,14 @@ import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.entity.Category;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
+import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.mapper.CategoryMapper;
 
 @Service
 @RequiredArgsConstructor
 public class AdminCategoryServiceImpl implements AdminCategoryService {
     private final CategoryRepository categoryRepository;
+    private final PublicEventsClient publicEventsClient;
 
     @Override
     public CategoryDto createCategory(CategoryDto dto) {
@@ -51,14 +53,13 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     public void deleteCategory(Long catId) {
-        if (!categoryRepository.existsById(catId)) {
-            throw new NotFoundException("Category with id=" + catId + " was not found");
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Категория с id=" + catId + " не найдена"));
+
+        if (publicEventsClient.checkEventByCategory(catId)) {
+            throw new ConflictException("Категория не является пустой");
         }
 
-        int deletedCount = categoryRepository.deleteCategoryIfNotUsed(catId);
-
-        if (deletedCount == 0) {
-            throw new ConflictException("Category is used by events and cannot be deleted");
-        }
+        categoryRepository.delete(category);
     }
 }

@@ -62,5 +62,8 @@ public interface EventsRepository extends JpaRepository<Event, Long>, JpaSpecifi
 
     @Query("SELECT e.participantLimit FROM Event e WHERE e.id = :id")
     Integer getParticipantLimit(Long id);
+
+    @Query("SELECT COUNT(e) > 0 FROM Event e WHERE e.category = :categoryId AND e.state = 'PUBLISHED'")
+    Boolean existsByCategory(@Param("categoryId") Long categoryId);
 }
 
