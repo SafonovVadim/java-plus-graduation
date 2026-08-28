@@ -1,6 +1,7 @@
 package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.events.EventFullDto;
@@ -18,7 +19,13 @@ public class AdminEventsController implements AdminEventsClient {
     private final AdminEventsService adminEventsService;
 
     @Override
-    public ResponseEntity<List<EventFullDto>> getEvents(@RequestParam List<Long> users, @RequestParam List<String> states, @RequestParam List<Long> categories, @RequestParam LocalDateTime rangeStart, @RequestParam LocalDateTime rangeEnd, @RequestParam Integer from, @RequestParam Integer size) {
+    public ResponseEntity<List<EventFullDto>> getEvents(   @RequestParam(required = false) List<Long> users,
+                                                           @RequestParam(required = false) List<String> states,
+                                                           @RequestParam(required = false) List<Long> categories,
+                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                                           @RequestParam(defaultValue = "0") Integer from,
+                                                           @RequestParam(defaultValue = "10") Integer size) {
         return ResponseEntity.ok(adminEventsService.getEvents(users, states, categories, rangeStart, rangeEnd, from, size));
     }
 

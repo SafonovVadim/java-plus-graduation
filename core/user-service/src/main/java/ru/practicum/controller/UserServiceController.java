@@ -1,5 +1,6 @@
 package ru.practicum.controller;
 
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.users.NewUserRequest;
@@ -22,7 +23,9 @@ public class UserServiceController implements UserClient {
     }
 
     @Override
-    public List<UserDto> get(@RequestParam List<Long> ids, @RequestParam int offset, @RequestParam int size) {
+    public List<UserDto> get(@RequestParam(name = "ids", required = false) List<Long> ids,
+                             @RequestParam(defaultValue = "0") @Min(0) int offset,
+                             @RequestParam(defaultValue = "10") @Min(1) int size) {
         return userService.findByIdsOrAllWithPagination(ids, offset, size);
     }
 
