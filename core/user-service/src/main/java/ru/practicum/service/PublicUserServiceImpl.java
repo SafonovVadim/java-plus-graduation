@@ -2,10 +2,10 @@ package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.UserRepository;
 import ru.practicum.dto.users.UserDto;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.mapper.UserMapper;
-import ru.practicum.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor

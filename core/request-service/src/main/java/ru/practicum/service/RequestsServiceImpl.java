@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.RequestRepository;
 import ru.practicum.dto.requests.ParticipationRequestDto;
 import ru.practicum.entity.Event;
 import ru.practicum.entity.ParticipationRequest;
@@ -11,12 +12,11 @@ import ru.practicum.entity.User;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
+import ru.practicum.feign.PrivateEventsClient;
 import ru.practicum.feign.PublicUserClient;
-import ru.practicum.feign.UserClient;
+import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.RequestsMapper;
 import ru.practicum.mapper.UserMapper;
-import ru.practicum.repository.EventsRepository;
-import ru.practicum.repository.RequestRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +30,7 @@ import static ru.practicum.mapper.RequestsMapper.toDto;
 @Transactional
 @Slf4j
 public class RequestsServiceImpl implements RequestsService {
-    private final EventsRepository eventsRepository;
+    private final PrivateEventsClient privateEventsClient;
     private final RequestRepository requestRepository;
     private final PublicUserClient publicUserClient;
 
@@ -41,7 +41,7 @@ public class RequestsServiceImpl implements RequestsService {
         User requester = findUserById(userId);
 
         // 2. Проверяем существование события
-        Event event = eventsRepository.findById(eventId).orElseThrow(()->new NotFoundException("Ивент с id =" + eventId + " не найден"));
+        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId, eventId));
 
         // 3. Проверяем, что пользователь не является инициатором события
         if (event.getInitiatorId().equals(userId)) {

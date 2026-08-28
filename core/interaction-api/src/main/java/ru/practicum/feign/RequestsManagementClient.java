@@ -9,7 +9,6 @@ import ru.practicum.dto.requests.ParticipationRequestDto;
 import java.util.List;
 
 @FeignClient(name = "request-service", path = "/users/{userId}/requests", configuration = FeignConfig.class)
-
 public interface RequestsManagementClient {
 
     @PostMapping()

@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.NewEventDto;
 import ru.practicum.dto.events.UpdateEventUserRequest;
-import ru.practicum.dto.requests.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.requests.EventRequestStatusUpdateResult;
-import ru.practicum.dto.requests.ParticipationRequestDto;
 
 import java.util.List;
 
@@ -42,16 +39,5 @@ public interface PrivateEventsClient {
     EventFullDto getUserEventById(
             @Positive Long userId,
             @PathVariable @Positive Long eventId);
-
-    @PatchMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
-    EventRequestStatusUpdateResult updateRequestStatus(
-            @Positive Long userId,
-            @PathVariable Long eventId,
-            @RequestBody EventRequestStatusUpdateRequest request);
-
-    @GetMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
-    List<ParticipationRequestDto> getEventRequests(@Positive Long userId, @PathVariable Long eventId);
 
 }

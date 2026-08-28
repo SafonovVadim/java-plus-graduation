@@ -10,21 +10,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.EventsRepository;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.ViewStats;
 import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.dto.events.EventFullDto;
-import ru.practicum.dto.events.Location;
 import ru.practicum.dto.events.UpdateEventAdminRequest;
-import ru.practicum.dto.events.UpdateEventRequest;
-import ru.practicum.entity.Category;
 import ru.practicum.entity.Event;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.feign.PublicCategoriesClient;
+import ru.practicum.feign.PublicRequestClient;
 import ru.practicum.mapper.EventsMapper;
-import ru.practicum.repository.EventsRepository;
-import ru.practicum.repository.RequestRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,7 +33,6 @@ import java.util.stream.Collectors;
 import static ru.practicum.dto.events.StateAction.PUBLISH_EVENT;
 import static ru.practicum.dto.events.StateAction.REJECT_EVENT;
 import static ru.practicum.events.dto.EventState.CONFIRMED;
-import static ru.practicum.mapper.CategoryMapper.toCategory;
 import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 
 @Service
@@ -45,8 +41,8 @@ public class AdminEventsServiceImpl implements AdminEventsService {
     private final EntityManager entityManager;
     private final StatsClient statsClient;
     private final EventsRepository eventsRepository;
-    private final RequestRepository requestRepository;
     private final PublicCategoriesClient publicCategoriesClient;
+    private final PublicRequestClient publicRequestClient;
 
     @Override
     public List<EventFullDto> getEvents(
@@ -95,12 +91,14 @@ public class AdminEventsServiceImpl implements AdminEventsService {
                 .setMaxResults(pageRequest.getPageSize())
                 .getResultList();
 
-        Map<Long, Long> confirmedRequests = getConfirmedRequestsMap(events);
+        for (Event event : events) {
+            Long confirmed = publicRequestClient.countByEventIdAndStatus(event.getId(), CONFIRMED);
+            event.setConfirmedRequests(confirmed);
+        }
 
         setViewsToEvents(events);
 
         return events.stream()
-                .peek(event -> event.setConfirmedRequests(confirmedRequests.getOrDefault(event.getId(), 0L)))
                 .map(EventsMapper::toEventFullDto)
                 .collect(Collectors.toList());
     }
@@ -148,65 +146,10 @@ public class AdminEventsServiceImpl implements AdminEventsService {
         }
 
         Event saved = eventsRepository.save(event);
-        Long confirmed = requestRepository.countByEventIdAndStatus(saved.getId(), CONFIRMED);
+        Long confirmed = publicRequestClient.countByEventIdAndStatus(saved.getId(), CONFIRMED);
         saved.setConfirmedRequests(confirmed);
         setViewsToEvent(saved);
         return toEventFullDto(saved);
-    }
-
-    /**
-     * Получает карту количества подтвержденных запросов для списка событий.
-     *
-     * @param events список событий
-     * @return карта, где ключ - идентификатор события, значение - количество подтвержденных запросов
-     */
-    private Map<Long, Long> getConfirmedRequestsMap(List<Event> events) {
-        if (events.isEmpty()) return Map.of();
-
-        List<Long> eventIds = events.stream()
-                .map(Event::getId)
-                .collect(Collectors.toList());
-
-        List<Object[]> results = requestRepository.countConfirmedRequestsByEventIds(eventIds, CONFIRMED);
-
-        return results.stream()
-                .collect(Collectors.toMap(
-                        row -> ((Number) row[0]).longValue(),
-                        row -> ((Number) row[1]).longValue()
-                ));
-    }
-
-
-    private <T extends UpdateEventRequest> void applyNonNullUpdates(Event event, T request) {
-        // Общие поля для обоих типов запросов
-        if (request.getAnnotation() != null) {
-            event.setAnnotation(request.getAnnotation());
-        }
-        if (request.getDescription() != null) {
-            event.setDescription(request.getDescription());
-        }
-        if (request.getTitle() != null) {
-            event.setTitle(request.getTitle());
-        }
-        if (request.getPaid() != null) {
-            event.setPaid(request.getPaid());
-        }
-        if (request.getParticipantLimit() != null) {
-            event.setParticipantLimit(request.getParticipantLimit());
-        }
-        if (request.getRequestModeration() != null) {
-            event.setRequestModeration(request.getRequestModeration());
-        }
-        if (request.getLocation() != null) {
-            event.setLocation(request.getLocation());
-        }
-        if (request.getCategory() != null) {
-            Category category = toCategory(publicCategoriesClient.getCategoryById(request.getCategory()));
-            event.setCategory(category.getId());
-        }
-        if (request.getEventDate() != null) {
-            event.setEventDate(request.getEventDate());
-        }
     }
 
     private void setViewsToEvents(List<Event> events) {

@@ -1,4 +1,4 @@
-package ru.practicum.repository;
+package ru.practicum;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

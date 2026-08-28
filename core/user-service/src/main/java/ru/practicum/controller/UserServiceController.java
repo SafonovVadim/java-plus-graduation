@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.users.NewUserRequest;
 import ru.practicum.dto.users.UserDto;
-import ru.practicum.entity.User;
 import ru.practicum.feign.UserClient;
 import ru.practicum.service.UserService;
 

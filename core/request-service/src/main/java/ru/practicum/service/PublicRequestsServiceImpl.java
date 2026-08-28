@@ -2,7 +2,7 @@ package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.repository.RequestRepository;
+import ru.practicum.RequestRepository;
 
 @Service
 @RequiredArgsConstructor

@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import ru.practicum.EventsRepository;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.ViewStats;
 import ru.practicum.dto.events.EventFullDto;
@@ -14,15 +15,15 @@ import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.entity.Event;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
-import ru.practicum.repository.EventsRepository;
-import ru.practicum.repository.RequestRepository;
+import ru.practicum.feign.PublicRequestClient;
+import ru.practicum.mapper.EventsMapper;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ru.practicum.events.dto.EventState.CONFIRMED;
 import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 import static ru.practicum.mapper.EventsMapper.toShortEventDto;
 
@@ -32,9 +33,9 @@ import static ru.practicum.mapper.EventsMapper.toShortEventDto;
 @Slf4j
 public class PublicEventsServiceImpl implements PublicEventsService {
     private final EventsRepository eventRepository;
-    private final RequestRepository requestRepository;
     private final StatsClient statsClient;
     private final EventsRepository eventsRepository;
+    private final PublicRequestClient publicRequestClient;
 
 
     @Override
@@ -72,10 +73,11 @@ public class PublicEventsServiceImpl implements PublicEventsService {
             events.sort((e1, e2) -> Long.compare(e2.getViews(), e1.getViews()));
         }
 
-        Map<Long, Long> requestCounts = getRequestCounts(events.stream().map(Event::getId).toList());
-
         return events.stream()
-                .map(event -> toShortEventDto(event, requestCounts.getOrDefault(event.getId(), 0L)))
+                .map(event -> {
+                    Long confirmed = publicRequestClient.countByEventIdAndStatus(event.getId(), CONFIRMED);
+                    return EventsMapper.toShortEventDto(event, confirmed);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -88,7 +90,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
             throw new NotFoundException("Событие с id=" + id + " не найдено");
         }
 
-        long confirmedRequests = requestRepository.countByEventIdAndStatus(event.getId(), EventState.CONFIRMED);
+        long confirmedRequests = publicRequestClient.countByEventIdAndStatus(event.getId(), CONFIRMED);
         event.setConfirmedRequests(confirmedRequests);
 
         setViewsToEvents(List.of(event));
@@ -99,17 +101,6 @@ public class PublicEventsServiceImpl implements PublicEventsService {
     @Override
     public EventShortDto getEventShort(Long id) {
         return toShortEventDto(eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found")));
-    }
-
-    private List<ViewStats> getStats(List<String> uris) {
-        LocalDateTime start = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
-        LocalDateTime end = LocalDateTime.now();
-
-        try {
-            return statsClient.getStats(start, end, uris, true);
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
     }
 
     private void setViewsToEvents(List<Event> events) {
@@ -135,13 +126,5 @@ public class PublicEventsServiceImpl implements PublicEventsService {
             Long views = viewsMap.getOrDefault(uri, 0L);
             event.setViews(views);
         });
-    }
-
-    private Map<Long, Long> getRequestCounts(List<Long> eventIds) {
-        return requestRepository.countConfirmedRequestsByEventIds(eventIds, EventState.CONFIRMED).stream()
-                .collect(Collectors.toMap(
-                        r -> ((Number) r[0]).longValue(),
-                        r -> ((Number) r[1]).longValue()
-                ));
     }
 }

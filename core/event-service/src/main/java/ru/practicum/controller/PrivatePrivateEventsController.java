@@ -8,9 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.NewEventDto;
 import ru.practicum.dto.events.UpdateEventUserRequest;
-import ru.practicum.dto.requests.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.requests.EventRequestStatusUpdateResult;
-import ru.practicum.dto.requests.ParticipationRequestDto;
 import ru.practicum.feign.PrivateEventsClient;
 import ru.practicum.service.EventsService;
 
@@ -54,15 +51,5 @@ public class PrivatePrivateEventsController implements PrivateEventsClient {
             @PathVariable @Positive Long userId,
             @PathVariable @Positive Long eventId) {
         return eventsService.getUserEventById(userId, eventId);
-    }
-
-    @Override
-    public EventRequestStatusUpdateResult updateRequestStatus(@PathVariable Long userId, @PathVariable Long eventId, @RequestBody EventRequestStatusUpdateRequest request) {
-        return eventsService.updateRequestStatuses(userId, eventId, request);
-    }
-
-    @Override
-    public List<ParticipationRequestDto> getEventRequests(@PathVariable Long userId, @PathVariable Long eventId) {
-        return eventsService.getEventRequests(userId, eventId);
     }
 }

@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.UserRepository;
 import ru.practicum.dto.users.NewUserRequest;
 import ru.practicum.dto.users.UserDto;
 import ru.practicum.entity.User;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.mapper.UserMapper;
-import ru.practicum.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;

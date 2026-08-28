@@ -3,12 +3,12 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.CategoryRepository;
 import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.entity.Category;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.mapper.CategoryMapper;
-import ru.practicum.CategoryRepository;
 
 @Service
 @RequiredArgsConstructor

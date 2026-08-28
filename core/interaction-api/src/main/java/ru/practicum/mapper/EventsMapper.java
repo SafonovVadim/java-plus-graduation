@@ -3,18 +3,11 @@ package ru.practicum.mapper;
 import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
-import ru.practicum.dto.events.Location;
-import ru.practicum.dto.events.NewEventDto;
 import ru.practicum.dto.users.UserShortDto;
-import ru.practicum.entity.Category;
 import ru.practicum.entity.Event;
-import ru.practicum.entity.User;
 import ru.practicum.events.dto.EventState;
 
 import java.time.LocalDateTime;
-
-import static ru.practicum.mapper.CategoryMapper.toCategoryDto;
-import static ru.practicum.mapper.UserMapper.toShortDto;
 
 
 public class EventsMapper {
@@ -88,28 +81,28 @@ public class EventsMapper {
     }
 
     /**
-     * Преобразует DTO нового события в сущность Event.
+     * Преобразует EventFullDto в сущность Event.
      *
-     * @param dto  DTO с данными нового события
-     * @param user пользователь-инициатор события
+     * @param dto DTO с полными данными события
      * @return сущность Event, готовая для сохранения в БД
      */
-    public static Event toEvent(NewEventDto dto, User user, Category category) {
+    public static Event toEvent(EventFullDto dto) {
         return Event.builder()
+                .id(dto.getId())
                 .annotation(dto.getAnnotation())
-                .category(category.getId())
+                .category(dto.getCategory().getId())
+                .confirmedRequests(dto.getConfirmedRequests())
                 .description(dto.getDescription())
-                .title(dto.getTitle())
-                .eventDate(dto.getEventDate())
+                .eventDate(LocalDateTime.parse(dto.getEventDate(), Constance.FORMATTER))
+                .initiatorId(dto.getInitiator().getId())
+                .location(dto.getLocation())
                 .paid(dto.getPaid())
                 .participantLimit(dto.getParticipantLimit())
+                .publishedOn(dto.getPublishedOn() != null ? LocalDateTime.parse(dto.getPublishedOn(), Constance.FORMATTER) : null)
                 .requestModeration(dto.getRequestModeration())
-                .location(dto.getLocation())
-                .createdOn(LocalDateTime.now())
-                .state(EventState.PENDING)
-                .initiatorId(user.getId())
-                .confirmedRequests(0L)
-                .views(0L)
+                .state(EventState.valueOf(dto.getState()))
+                .title(dto.getTitle())
+                .views(dto.getViews())
                 .build();
     }
 

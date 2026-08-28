@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.CompilationRepository;
 import ru.practicum.dto.compilations.CompilationDto;
 import ru.practicum.dto.compilations.NewCompilationDto;
 import ru.practicum.dto.compilations.UpdateCompilationRequest;
 import ru.practicum.entity.Compilation;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.mapper.CompilationMapper;
-import ru.practicum.CompilationRepository;
 
 import java.util.LinkedHashSet;
 
