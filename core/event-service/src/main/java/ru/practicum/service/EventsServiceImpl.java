@@ -144,7 +144,7 @@ public class EventsServiceImpl implements EventsService {
             event.setDescription(updateEventUserRequest.getDescription());
         if (updateEventUserRequest.getEventDate() != null) {
             if (updateEventUserRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new BadRequestException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
+                throw new ConflictException("Дата события должна быть не ранее чем через 2 часа от текущего момента");
             }
             event.setEventDate(updateEventUserRequest.getEventDate());
         }
