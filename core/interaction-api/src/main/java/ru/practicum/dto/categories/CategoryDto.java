@@ -1,5 +1,6 @@
 package ru.practicum.dto.categories;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,5 +16,6 @@ public class CategoryDto {
     private Long id;
     @NotNull
     @NotBlank
+    @Max(50)
     private String name;
 }
