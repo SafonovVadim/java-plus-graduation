@@ -12,30 +12,32 @@ import ru.practicum.dto.events.UpdateEventUserRequest;
 
 import java.util.List;
 
-@FeignClient(name = "event-service",contextId = "privateEvenClient", path = "/users", configuration = FeignConfig.class)
+@FeignClient(name = "event-service", contextId = "privateEvenClient", path = "/users/{userId}/events", configuration = FeignConfig.class)
 public interface PrivateEventsClient {
-    @PostMapping("/{userId}/events")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    EventFullDto addEvent(@PathVariable Long userId,
+    EventFullDto addEvent(
+            @PathVariable @Positive Long userId,
             @Valid @RequestBody NewEventDto newEventDto);
 
-    @PatchMapping("/{userId}/events/{eventId}")
+    @PatchMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     EventFullDto updateEvent(
-            @PathVariable Long userId,
-            @PathVariable Long eventId,
+            @Positive Long userId,
+            @PathVariable @Positive Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest);
 
-    @GetMapping("/{userId}/events")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     List<EventFullDto> getUserEvents(
-            @PathVariable Long userId,
+            @Positive Long userId,
             @RequestParam(defaultValue = "0") @Min(0) Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size);
 
-    @GetMapping("/{userId}/events/{eventId}")
+    @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    EventFullDto getUserEventById(@PathVariable Long userId,
-            @PathVariable Long eventId);
+    EventFullDto getUserEventById(
+            @Positive Long userId,
+            @PathVariable @Positive Long eventId);
 
 }

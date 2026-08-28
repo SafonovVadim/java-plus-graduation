@@ -14,7 +14,7 @@ import ru.practicum.service.EventsService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/users/{userId}/events")
 @RequiredArgsConstructor
 public class PrivateEventsController implements PrivateEventsClient {
 
@@ -22,7 +22,7 @@ public class PrivateEventsController implements PrivateEventsClient {
 
     @Override
     public EventFullDto addEvent(
-            @PathVariable Long userId,
+            @PathVariable @Positive Long userId,
             @Valid @RequestBody NewEventDto newEventDto) {
 
         return eventsService.saveEvent(newEventDto, userId);
@@ -30,8 +30,8 @@ public class PrivateEventsController implements PrivateEventsClient {
 
     @Override
     public EventFullDto updateEvent(
-            @PathVariable Long userId,
-            @PathVariable Long eventId,
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId,
             @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
 
         return eventsService.updateInactiveEvent(userId, eventId, updateEventUserRequest);
@@ -39,7 +39,7 @@ public class PrivateEventsController implements PrivateEventsClient {
 
     @Override
     public List<EventFullDto> getUserEvents(
-            @PathVariable Long userId,
+            @PathVariable @Positive Long userId,
             @RequestParam(defaultValue = "0") @Min(0) Integer from,
             @RequestParam(defaultValue = "10") @Positive Integer size) {
 
@@ -48,8 +48,8 @@ public class PrivateEventsController implements PrivateEventsClient {
 
     @Override
     public EventFullDto getUserEventById(
-            @PathVariable Long userId,
-            @PathVariable Long eventId) {
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long eventId) {
         return eventsService.getUserEventById(userId, eventId);
     }
 }

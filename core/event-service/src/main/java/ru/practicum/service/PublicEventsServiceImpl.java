@@ -103,6 +103,11 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         return toShortEventDto(eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found")));
     }
 
+    @Override
+    public Event getEvent(Long id) {
+        return eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
+    }
+
     private void setViewsToEvents(List<Event> events) {
         if (events.isEmpty()) return;
 

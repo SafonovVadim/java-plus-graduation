@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
+import ru.practicum.entity.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,4 +62,7 @@ public interface PublicEventsClient {
 
     @GetMapping("/{eventId}/short")
     EventShortDto getEventShort(@PathVariable Long eventId);
+
+    @GetMapping("/{eventId}/full")
+    Event getEvent(@PathVariable Long eventId);
 }

@@ -12,9 +12,8 @@ import ru.practicum.entity.User;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
-import ru.practicum.feign.PrivateEventsClient;
+import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.feign.PublicUserClient;
-import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.RequestsMapper;
 import ru.practicum.mapper.UserMapper;
 
@@ -30,7 +29,7 @@ import static ru.practicum.mapper.RequestsMapper.toDto;
 @Transactional
 @Slf4j
 public class RequestsServiceImpl implements RequestsService {
-    private final PrivateEventsClient privateEventsClient;
+    private final PublicEventsClient publicEventsClient;
     private final RequestRepository requestRepository;
     private final PublicUserClient publicUserClient;
 
@@ -41,7 +40,7 @@ public class RequestsServiceImpl implements RequestsService {
         User requester = findUserById(userId);
 
         // 2. Проверяем существование события
-        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId,eventId));
+        Event event = publicEventsClient.getEvent(eventId);
 
         // 3. Проверяем, что пользователь не является инициатором события
         if (event.getInitiatorId().equals(userId)) {

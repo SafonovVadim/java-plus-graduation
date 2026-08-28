@@ -12,8 +12,7 @@ import ru.practicum.entity.ParticipationRequest;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.ForbiddenActionException;
 import ru.practicum.errors.exception.NotFoundException;
-import ru.practicum.feign.PrivateEventsClient;
-import ru.practicum.mapper.EventsMapper;
+import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.mapper.RequestsMapper;
 
 import java.util.ArrayList;
@@ -24,18 +23,18 @@ import static ru.practicum.mapper.RequestsMapper.toDto;
 @Service
 @RequiredArgsConstructor
 public class ParticipationRequestServiceImpl implements ParticipationRequestService {
-    private final PrivateEventsClient privateEventsClient;
+    private final PublicEventsClient publicEventsClient;
     private final RequestRepository requestRepository;
 
     @Override
     @SneakyThrows
     public EventRequestStatusUpdateResult updateRequestStatuses(
             Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
-        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId,eventId));
+        Event event = publicEventsClient.getEvent(eventId);
         if (!event.getInitiatorId().equals(userId)) {
             throw new ConflictException("Только инициатор события может изменять статусы заявок");
         }
-        List<ParticipationRequest> requests = requestRepository.findByRequesterId(userId);
+        List<ParticipationRequest> requests = requestRepository.findAllById(request.getRequestIds());
         ru.practicum.events.dto.EventState newStatus = request.getStatus();
 
         if (requests.size() != request.getRequestIds().size()) {
@@ -90,7 +89,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         // 1. Проверяем существование события и принадлежность пользователю
-        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId,eventId));
+        Event event = publicEventsClient.getEvent(eventId);
 
         if (!event.getInitiatorId().equals(userId)) {
             throw new ForbiddenActionException("User is not the initiator of the event");

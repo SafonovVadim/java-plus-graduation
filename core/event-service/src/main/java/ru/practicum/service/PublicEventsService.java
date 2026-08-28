@@ -3,6 +3,7 @@ package ru.practicum.service;
 
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
+import ru.practicum.entity.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,5 +25,7 @@ public interface PublicEventsService {
     EventFullDto getPublishedEventById(Long id);
 
     EventShortDto getEventShort(Long id);
+
+    Event getEvent(Long id);
 
 }

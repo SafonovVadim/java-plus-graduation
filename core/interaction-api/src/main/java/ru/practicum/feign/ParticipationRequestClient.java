@@ -13,17 +13,17 @@ import ru.practicum.dto.requests.ParticipationRequestDto;
 
 import java.util.List;
 
-@FeignClient(name = "request-service", contextId = "participationRequest", path = "/users/{userId}/events/{eventId}", configuration = FeignConfig.class)
+@FeignClient(name = "request-service", contextId = "participationRequest", path = "/users/{userId}/events/{eventId}/requests", configuration = FeignConfig.class)
 public interface ParticipationRequestClient {
 
-    @PatchMapping("/requests")
+    @PatchMapping()
     @ResponseStatus(HttpStatus.OK)
     EventRequestStatusUpdateResult updateRequestStatus(
             @Positive Long userId,
             @Positive Long eventId,
             @RequestBody EventRequestStatusUpdateRequest request);
 
-    @GetMapping("/requests")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     List<ParticipationRequestDto> getEventRequests(@Positive Long userId, @Positive Long eventId);
 }

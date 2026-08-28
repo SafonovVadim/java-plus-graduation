@@ -13,6 +13,7 @@ import ru.practicum.StatsClient;
 import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
+import ru.practicum.entity.Event;
 import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.service.PublicEventsService;
 
@@ -99,5 +100,10 @@ public class PublicEventsController implements PublicEventsClient {
     @Override
     public EventShortDto getEventShort(@PathVariable Long eventId) {
         return eventService.getEventShort(eventId);
+    }
+
+    @Override
+    public Event getEvent(@PathVariable Long eventId) {
+        return eventService.getEvent(eventId);
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/{userId}/events/{eventId}")
+@RequestMapping("/users/{userId}/events/{eventId}/requests")
 public class ParticipationRequestController implements ParticipationRequestClient {
     private final ParticipationRequestService participationRequestService;
 
