@@ -13,8 +13,6 @@ import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.ForbiddenActionException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.feign.PrivateEventsClient;
-import ru.practicum.feign.PublicEventsClient;
-import ru.practicum.feign.PublicUserClient;
 import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.RequestsMapper;
 
@@ -26,16 +24,14 @@ import static ru.practicum.mapper.RequestsMapper.toDto;
 @Service
 @RequiredArgsConstructor
 public class ParticipationRequestServiceImpl implements ParticipationRequestService {
-    private final PublicEventsClient publicEventsClient;
     private final PrivateEventsClient privateEventsClient;
-    private final PublicUserClient publicUserClient;
     private final RequestRepository requestRepository;
 
     @Override
     @SneakyThrows
     public EventRequestStatusUpdateResult updateRequestStatuses(
             Long userId, Long eventId, EventRequestStatusUpdateRequest request) {
-        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(eventId));
+        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId,eventId));
         if (!event.getInitiatorId().equals(userId)) {
             throw new ConflictException("Только инициатор события может изменять статусы заявок");
         }
@@ -94,7 +90,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
         // 1. Проверяем существование события и принадлежность пользователю
-        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(eventId));
+        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId,eventId));
 
         if (!event.getInitiatorId().equals(userId)) {
             throw new ForbiddenActionException("User is not the initiator of the event");

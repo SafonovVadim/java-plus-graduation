@@ -41,7 +41,7 @@ public class RequestsServiceImpl implements RequestsService {
         User requester = findUserById(userId);
 
         // 2. Проверяем существование события
-        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId));
+        Event event = EventsMapper.toEvent(privateEventsClient.getUserEventById(userId,eventId));
 
         // 3. Проверяем, что пользователь не является инициатором события
         if (event.getInitiatorId().equals(userId)) {
