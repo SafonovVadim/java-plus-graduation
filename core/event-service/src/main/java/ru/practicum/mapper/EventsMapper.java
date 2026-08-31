@@ -122,6 +122,7 @@ public class EventsMapper {
                 .requestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true)
                 .title(newEventDto.getTitle())
                 .initiatorId(userId)
+                .confirmedRequests(0L)
                 .state(PENDING)
                 .createdOn(LocalDateTime.now())
                 .build();
