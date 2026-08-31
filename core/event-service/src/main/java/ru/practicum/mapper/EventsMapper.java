@@ -111,21 +111,20 @@ public class EventsMapper {
     }
 
     public static Event createEventDto(NewEventDto newEventDto, Long categoryId, Long userId) {
-        return Event.builder()
-                .annotation(newEventDto.getAnnotation())
-                .category(categoryId)
-                .description(newEventDto.getDescription())
-                .eventDate(newEventDto.getEventDate())
-                .location(newEventDto.getLocation())
-                .paid(newEventDto.getPaid() != null ? newEventDto.getPaid() : false)
-                .participantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0)
-                .requestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true)
-                .title(newEventDto.getTitle())
-                .initiatorId(userId)
-                .confirmedRequests(0L)
-                .state(PENDING)
-                .createdOn(LocalDateTime.now())
-                .build();
+        Event event = new Event();
+        event.setAnnotation(newEventDto.getAnnotation());
+        event.setCategory(categoryId);
+        event.setDescription(newEventDto.getDescription());
+        event.setEventDate(newEventDto.getEventDate());
+        event.setLocation(newEventDto.getLocation());
+        event.setPaid(newEventDto.getPaid() != null ? newEventDto.getPaid() : false);
+        event.setParticipantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0);
+        event.setRequestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true);
+        event.setTitle(newEventDto.getTitle());
+        event.setInitiatorId(userId);
+        event.setState(PENDING);
+        event.setCreatedOn(LocalDateTime.now());
+        return event;
     }
 
     private static String format(LocalDateTime dateTime) {

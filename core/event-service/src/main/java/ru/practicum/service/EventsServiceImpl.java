@@ -69,8 +69,7 @@ public class EventsServiceImpl implements EventsService {
         if (category == null) {
             throw new NotFoundException("Категория с id=" + newEventDto.getCategory() + " не найдена");
         }
-        Event event = createEventDto(newEventDto, category.getId(), initiator.getId());
-        Event savedEvent = eventRepository.save(event);
+        Event savedEvent = eventRepository.save(createEventDto(newEventDto, category.getId(), initiator.getId()));
         log.info("Событие успешно сохранено с ID: {} для пользователя с ID: {}", savedEvent.getId(), initiator.getId());
         return toEventFullDto(savedEvent);
     }
