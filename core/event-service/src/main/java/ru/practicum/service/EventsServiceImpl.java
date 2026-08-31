@@ -69,9 +69,9 @@ public class EventsServiceImpl implements EventsService {
         if (category == null) {
             throw new NotFoundException("Категория с id=" + newEventDto.getCategory() + " не найдена");
         }
-
-        Event savedEvent = eventRepository.save(createEventDto(newEventDto, category.getId(), userId));
-        log.info("Событие успешно сохранено с ID: {} для пользователя с ID: {}", savedEvent.getId(), userId);
+        Event event = createEventDto(newEventDto, category.getId(), initiator.getId());
+        Event savedEvent = eventRepository.save(event);
+        log.info("Событие успешно сохранено с ID: {} для пользователя с ID: {}", savedEvent.getId(), initiator.getId());
         return toEventFullDto(savedEvent);
     }
 
@@ -107,7 +107,6 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     @Transactional
-    @SneakyThrows
     public EventFullDto updateInactiveEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         log.info("Начало обновления события с ID: {} для пользователя с ID: {}", eventId, userId);
         log.debug("Dto {}", updateEventUserRequest);
