@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.practicum.events.dto.EventState.PENDING;
+import static ru.practicum.mapper.EventsMapper.createEventDto;
 import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 
 
@@ -69,21 +70,7 @@ public class EventsServiceImpl implements EventsService {
             throw new NotFoundException("Категория с id=" + newEventDto.getCategory() + " не найдена");
         }
 
-        Event event = new Event();
-        event.setAnnotation(newEventDto.getAnnotation());
-        event.setCategory(category.getId());
-        event.setDescription(newEventDto.getDescription());
-        event.setEventDate(newEventDto.getEventDate());
-        event.setLocation(newEventDto.getLocation());
-        event.setPaid(newEventDto.getPaid() != null ? newEventDto.getPaid() : false);
-        event.setParticipantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0);
-        event.setRequestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true);
-        event.setTitle(newEventDto.getTitle());
-        event.setInitiatorId(userId);
-        event.setState(PENDING);
-        event.setCreatedOn(LocalDateTime.now());
-
-        Event savedEvent = eventRepository.save(event);
+        Event savedEvent = eventRepository.save(createEventDto(newEventDto, category.getId(), userId));
         log.info("Событие успешно сохранено с ID: {} для пользователя с ID: {}", savedEvent.getId(), userId);
         return toEventFullDto(savedEvent);
     }
@@ -164,10 +151,9 @@ public class EventsServiceImpl implements EventsService {
             }
         }
 
-        Event saved = eventRepository.save(event);
-        Long confirmed = publicRequestClient.countByEventIdAndStatus(saved.getId(), EventState.CONFIRMED);
-        saved.setConfirmedRequests(confirmed);
-        return EventsMapper.toEventFullDto(saved);
+        Long confirmed = publicRequestClient.countByEventIdAndStatus(event.getId(), EventState.CONFIRMED);
+        event.setConfirmedRequests(confirmed);
+        return EventsMapper.toEventFullDto(event);
     }
 
     @Override

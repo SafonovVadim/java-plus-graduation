@@ -58,7 +58,6 @@ public class AdminCompilationsServiceImpl implements AdminCompilationService {
             compilation.setTitle(dto.getTitle());
         }
 
-        compilationRepository.save(compilation);
         Compilation detailed = compilationRepository.findDetailedById(compilation.getId())
                 .orElseThrow(() -> new NotFoundException("Compilation with id=" + compilation.getId() + " was not found"));
         return compilationMapper.toCompilation(detailed);

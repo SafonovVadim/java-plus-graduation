@@ -3,11 +3,15 @@ package ru.practicum.mapper;
 import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
+import ru.practicum.dto.events.NewEventDto;
+import ru.practicum.dto.users.UserDto;
 import ru.practicum.dto.users.UserShortDto;
 import ru.practicum.entity.Event;
 import ru.practicum.events.dto.EventState;
 
 import java.time.LocalDateTime;
+
+import static ru.practicum.events.dto.EventState.PENDING;
 
 
 public class EventsMapper {
@@ -20,7 +24,7 @@ public class EventsMapper {
             setId(event.getCategory());
         }});
         dto.setConfirmedRequests(confirmedRequests);
-        dto.setEventDate(event.getEventDate().format(Constance.FORMATTER));
+        dto.setEventDate(event.getEventDate().format(Constants.FORMATTER));
         dto.setInitiator(new UserShortDto() {{
             setId(event.getInitiatorId());
         }});
@@ -38,7 +42,7 @@ public class EventsMapper {
             setId(event.getCategory());
         }});
         dto.setConfirmedRequests(event.getConfirmedRequests());
-        dto.setEventDate(event.getEventDate().format(Constance.FORMATTER));
+        dto.setEventDate(event.getEventDate().format(Constants.FORMATTER));
         dto.setInitiator(new UserShortDto() {{
             setId(event.getInitiatorId());
         }});
@@ -65,7 +69,7 @@ public class EventsMapper {
         dto.setConfirmedRequests(event.getConfirmedRequests());
         dto.setCreatedOn(format(event.getCreatedOn()));
         dto.setDescription(event.getDescription());
-        dto.setEventDate(event.getEventDate().format(Constance.FORMATTER));
+        dto.setEventDate(event.getEventDate().format(Constants.FORMATTER));
         dto.setInitiator(new UserShortDto() {{
             setId(event.getInitiatorId());
         }});
@@ -93,12 +97,12 @@ public class EventsMapper {
                 .category(dto.getCategory().getId())
                 .confirmedRequests(dto.getConfirmedRequests())
                 .description(dto.getDescription())
-                .eventDate(LocalDateTime.parse(dto.getEventDate(), Constance.FORMATTER))
+                .eventDate(LocalDateTime.parse(dto.getEventDate(), Constants.FORMATTER))
                 .initiatorId(dto.getInitiator().getId())
                 .location(dto.getLocation())
                 .paid(dto.getPaid())
                 .participantLimit(dto.getParticipantLimit())
-                .publishedOn(dto.getPublishedOn() != null ? LocalDateTime.parse(dto.getPublishedOn(), Constance.FORMATTER) : null)
+                .publishedOn(dto.getPublishedOn() != null ? LocalDateTime.parse(dto.getPublishedOn(), Constants.FORMATTER) : null)
                 .requestModeration(dto.getRequestModeration())
                 .state(EventState.valueOf(dto.getState()))
                 .title(dto.getTitle())
@@ -106,7 +110,24 @@ public class EventsMapper {
                 .build();
     }
 
+    public static Event createEventDto(NewEventDto newEventDto, Long categoryId, Long userId) {
+        return Event.builder()
+                .annotation(newEventDto.getAnnotation())
+                .category(categoryId)
+                .description(newEventDto.getDescription())
+                .eventDate(newEventDto.getEventDate())
+                .location(newEventDto.getLocation())
+                .paid(newEventDto.getPaid() != null ? newEventDto.getPaid() : false)
+                .participantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0)
+                .requestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true)
+                .title(newEventDto.getTitle())
+                .initiatorId(userId)
+                .state(PENDING)
+                .createdOn(LocalDateTime.now())
+                .build();
+    }
+
     private static String format(LocalDateTime dateTime) {
-        return dateTime != null ? dateTime.format(Constance.FORMATTER) : null;
+        return dateTime != null ? dateTime.format(Constants.FORMATTER) : null;
     }
 }
