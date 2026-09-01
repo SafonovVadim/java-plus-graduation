@@ -80,25 +80,6 @@ services:
       retries: 10
     networks:
       - app-network
-
-  main-service:
-    build: ./core/main-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://core-db:5432/core_db
-      SPRING_DATASOURCE_USERNAME: dbuser
-      SPRING_DATASOURCE_PASSWORD: 12345
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      EUREKA_CLIENT_SERVICEURL_DEFAULT_ZONE: http://discovery-server:8761/eureka
-    depends_on:
-      discovery-server:
-        condition: service_healthy
-      gateway-server:
-        condition: service_started
-      core-db:
-        condition: service_healthy
-    networks:
-      - app-network
-
   core-db:
     image: postgres:16.1
     container_name: core-db
