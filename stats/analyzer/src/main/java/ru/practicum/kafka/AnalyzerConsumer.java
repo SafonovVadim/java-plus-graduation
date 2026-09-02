@@ -39,7 +39,7 @@ public class AnalyzerConsumer {
         });
     }
 
-    @KafkaListener(topics = "${kafka.topics.similarity}", groupId = "analyzer-group")
+    @KafkaListener(topics = "${kafka.topics.output}", groupId = "analyzer-group")
     public void consumeSimilarity(ConsumerRecord<String, byte[]> record) {
         CompletableFuture.runAsync(() -> {
             try {
