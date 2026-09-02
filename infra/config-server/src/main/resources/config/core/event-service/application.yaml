@@ -29,14 +29,10 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
+      deferred: true
     analyzer:
       address: 'discovery:///analyzer'
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
-stub:
-  spring:
-    grpc:
-      client:
-        analyzer:
-          deferred: true
+      deferred: true
