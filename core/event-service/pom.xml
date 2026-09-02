@@ -25,8 +25,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.devh</groupId>
-            <artifactId>grpc-client-spring-boot-starter</artifactId>
+            <groupId>ru.practicum</groupId>
+            <artifactId>stats-dto</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
