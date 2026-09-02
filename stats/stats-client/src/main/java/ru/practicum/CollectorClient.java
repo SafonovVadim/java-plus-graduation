@@ -2,6 +2,7 @@ package ru.practicum;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.practicum.service.collector.UserActionControllerGrpc;
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class CollectorClient {
+    @GrpcClient("collector")
     private final UserActionControllerGrpc.UserActionControllerBlockingStub blockingStub;
 
     public CompletableFuture<Void> sendUserAction(UserActionProto request) {
