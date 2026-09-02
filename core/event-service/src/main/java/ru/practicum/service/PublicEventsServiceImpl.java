@@ -52,7 +52,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
                                    EventsRepository eventsRepository,
                                    PublicRequestClient publicRequestClient,
                                    @Lazy AnalyzerClient analyzerClient,
-                                   CollectorClient collectorClient) {
+                                   @Lazy CollectorClient collectorClient) {
         this.eventRepository = eventRepository;
         this.eventsRepository = eventsRepository;
         this.publicRequestClient = publicRequestClient;
