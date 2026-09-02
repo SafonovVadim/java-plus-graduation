@@ -5,7 +5,7 @@ kafka:
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
       retries: 0
     consumer:
-      group-id: aggregator-group
+      group-id: aggregator
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
       auto-offset-reset: latest

@@ -1,7 +1,7 @@
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
   consumer:
-    group-id: analyzer-group
+    group-id: analyzer
     key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
     auto-offset-reset: latest

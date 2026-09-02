@@ -3,7 +3,7 @@ kafka:
   producer:
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
     value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
-    retries: 0
+    retries: 3
   topics:
     output: stats.user-actions.v1
 
