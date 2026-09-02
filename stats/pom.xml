@@ -12,13 +12,13 @@
 
     <modules>
         <module>stats-dto</module>
+        <module>stats-proto</module>
+        <module>stats-avro</module>
         <module>stats-client</module>
         <module>stats-server</module>
         <module>aggregator</module>
         <module>analyzer</module>
         <module>collector</module>
-        <module>stats-proto</module>
-        <module>stats-avro</module>
     </modules>
 
     <properties>
