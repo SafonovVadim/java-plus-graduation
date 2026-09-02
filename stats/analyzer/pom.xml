@@ -81,7 +81,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ru.practicum.AggregatorApplication</mainClass>
+                    <mainClass>ru.practicum.AnalyzerApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
