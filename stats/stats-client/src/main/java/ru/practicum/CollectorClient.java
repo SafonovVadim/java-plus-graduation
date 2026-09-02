@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
-import ru.practicum.service.collector.UserActionControllerGrpc;
-import ru.practicum.service.collector.UserActionProto;
+import ru.practicum.ewm.stats.proto.UserActionControllerGrpc;
+import ru.practicum.ewm.stats.proto.UserActionProto;
+
 
 import java.util.concurrent.CompletableFuture;
 

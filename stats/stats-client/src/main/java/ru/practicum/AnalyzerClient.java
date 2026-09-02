@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
-import ru.practicum.service.dashboard.*;
+import ru.practicum.ewm.stats.proto.*;
 
 import java.util.Iterator;
 import java.util.Spliterator;
