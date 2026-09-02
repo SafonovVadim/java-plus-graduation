@@ -23,13 +23,13 @@ import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.ForbiddenActionException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 import ru.practicum.feign.PublicCategoriesClient;
 import ru.practicum.feign.PublicRequestClient;
 import ru.practicum.feign.PublicUserClient;
 import ru.practicum.feign.RequestsManagementClient;
 import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.UserMapper;
-import ru.practicum.service.dashboard.RecommendedEventProto;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

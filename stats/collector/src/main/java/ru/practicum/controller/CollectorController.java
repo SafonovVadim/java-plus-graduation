@@ -3,10 +3,11 @@ package ru.practicum.controller;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
+import ru.practicum.ewm.stats.proto.Empty;
+import ru.practicum.ewm.stats.proto.UserActionControllerGrpc;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.service.CollectorService;
-import ru.practicum.service.collector.Empty;
-import ru.practicum.service.collector.UserActionControllerGrpc;
-import ru.practicum.service.collector.UserActionProto;
+
 
 @GrpcService
 @RequiredArgsConstructor

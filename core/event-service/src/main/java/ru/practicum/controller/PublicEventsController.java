@@ -12,10 +12,11 @@ import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.entity.Event;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.service.PublicEventsService;
-import ru.practicum.service.collector.ActionTypeProto;
-import ru.practicum.service.collector.UserActionProto;
+
 
 import java.time.LocalDateTime;
 import java.util.List;

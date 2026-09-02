@@ -6,7 +6,7 @@ import ru.practicum.SimilaritiesRepository;
 import ru.practicum.UserActionRepository;
 import ru.practicum.entity.Similarities;
 import ru.practicum.entity.UserAction;
-import ru.practicum.service.dashboard.*;
+import ru.practicum.ewm.stats.proto.*;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -14,8 +14,6 @@ import ru.practicum.EventsRepository;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.ViewStats;
 import ru.practicum.errors.exception.BadRequestException;
-import ru.practicum.service.collector.ActionTypeProto;
-import ru.practicum.service.collector.UserActionProto;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.dto.users.UserDto;
@@ -23,10 +21,13 @@ import ru.practicum.entity.Event;
 import ru.practicum.entity.User;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.feign.PublicRequestClient;
 import ru.practicum.feign.PublicUserClient;
 import ru.practicum.mapper.EventsMapper;
-import ru.practicum.service.dashboard.RecommendedEventProto;
+
 
 import java.time.LocalDateTime;
 import java.util.List;

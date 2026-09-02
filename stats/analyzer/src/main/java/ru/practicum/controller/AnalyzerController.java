@@ -4,8 +4,9 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.stereotype.Component;
+import ru.practicum.ewm.stats.proto.*;
 import ru.practicum.service.AnalyzerService;
-import ru.practicum.service.dashboard.*;
+
 
 
 @GrpcService

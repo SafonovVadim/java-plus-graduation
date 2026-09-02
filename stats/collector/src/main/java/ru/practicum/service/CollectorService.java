@@ -10,9 +10,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
-import ru.practicum.ewm.stats.avro.UserActionAvro;
-import ru.practicum.service.collector.ActionTypeProto;
-import ru.practicum.service.collector.UserActionProto;
+import ru.practicum.ewm.stats.avro.*;
+import ru.practicum.ewm.stats.proto.*;
+
 
 import java.io.IOException;
 

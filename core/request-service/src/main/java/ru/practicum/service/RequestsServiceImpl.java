@@ -13,12 +13,12 @@ import ru.practicum.entity.User;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.feign.PublicUserClient;
 import ru.practicum.mapper.RequestsMapper;
 import ru.practicum.mapper.UserMapper;
-import ru.practicum.service.collector.ActionTypeProto;
-import ru.practicum.service.collector.UserActionProto;
 
 import java.time.LocalDateTime;
 import java.util.List;
