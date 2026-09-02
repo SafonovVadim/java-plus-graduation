@@ -1,8 +1,8 @@
 package ru.practicum.service;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -39,7 +39,6 @@ import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 import static ru.practicum.mapper.EventsMapper.toShortEventDto;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class PublicEventsServiceImpl implements PublicEventsService {
@@ -48,7 +47,18 @@ public class PublicEventsServiceImpl implements PublicEventsService {
     private final PublicRequestClient publicRequestClient;
     private final AnalyzerClient analyzerClient;
     private final CollectorClient collectorClient;
-    private final PublicUserClient publicUserClient;
+
+    public PublicEventsServiceImpl(EventsRepository eventRepository,
+                                   EventsRepository eventsRepository,
+                                   PublicRequestClient publicRequestClient,
+                                   @Lazy AnalyzerClient analyzerClient,
+                                   CollectorClient collectorClient) {
+        this.eventRepository = eventRepository;
+        this.eventsRepository = eventsRepository;
+        this.publicRequestClient = publicRequestClient;
+        this.analyzerClient = analyzerClient;
+        this.collectorClient = collectorClient;
+    }
 
 
     @Override
