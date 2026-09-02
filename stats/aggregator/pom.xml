@@ -8,8 +8,6 @@
     </parent>
 
     <artifactId>aggregator</artifactId>
-    <packaging>jar</packaging>
-
     <name>aggregator</name>
     <dependencies>
 
