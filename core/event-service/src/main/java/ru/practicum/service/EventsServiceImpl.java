@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.practicum.AnalyzerClient;
 import ru.practicum.EventsRepository;
@@ -42,7 +43,6 @@ import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 @Slf4j
 public class EventsServiceImpl implements EventsService {
@@ -51,6 +51,18 @@ public class EventsServiceImpl implements EventsService {
     private final PublicUserClient publicUserClient;
     private final PublicRequestClient publicRequestClient;
     private final AnalyzerClient analyzerClient;
+
+    public EventsServiceImpl(EventsRepository eventRepository,
+                             PublicCategoriesClient publicCategoriesClient,
+                             PublicUserClient publicUserClient,
+                             PublicRequestClient publicRequestClient,
+                             @Lazy AnalyzerClient analyzerClient) {
+        this.eventRepository = eventRepository;
+        this.publicCategoriesClient = publicCategoriesClient;
+        this.publicUserClient = publicUserClient;
+        this.publicRequestClient = publicRequestClient;
+        this.analyzerClient = analyzerClient;
+    }
 
     @Override
     @SneakyThrows
