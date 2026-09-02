@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.CollectorClient;
 import ru.practicum.RequestRepository;
 import ru.practicum.dto.requests.ParticipationRequestDto;
 import ru.practicum.entity.Event;
@@ -16,6 +17,8 @@ import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.feign.PublicUserClient;
 import ru.practicum.mapper.RequestsMapper;
 import ru.practicum.mapper.UserMapper;
+import ru.practicum.service.collector.ActionTypeProto;
+import ru.practicum.service.collector.UserActionProto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +35,7 @@ public class RequestsServiceImpl implements RequestsService {
     private final PublicEventsClient publicEventsClient;
     private final RequestRepository requestRepository;
     private final PublicUserClient publicUserClient;
+    private final CollectorClient collectorClient;
 
     @Override
     @Transactional
@@ -89,6 +93,8 @@ public class RequestsServiceImpl implements RequestsService {
 
         savedRequest.setRequester(requester);
         savedRequest.setEvent(event);
+        UserActionProto userActionProto = UserActionProto.newBuilder().setActionType(ActionTypeProto.ACTION_REGISTER).setUserId(Math.toIntExact(userId)).setEventId(Math.toIntExact(eventId)).build();
+        collectorClient.sendUserAction(userActionProto);
         log.debug("Дата создания в БД (после сохранения): {}\nСтроковое представление даты в DTO: {}",
                 request.getCreated(), savedRequest.getCreated().format(FORMATTER));
 

@@ -5,9 +5,7 @@ import jakarta.validation.constraints.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.entity.Event;
@@ -39,7 +37,7 @@ public interface PublicEventsClient {
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
 
             @RequestParam(defaultValue = "EVENT_DATE")
-            @Pattern(regexp = "EVENT_DATE|VIEWS", message = "Sort must be either 'EVENT_DATE' or 'VIEWS'")
+            @Pattern(regexp = "EVENT_DATE|RATING", message = "Sort must be either 'EVENT_DATE' or 'RATING'")
             String sort,
 
             @RequestParam(defaultValue = "0")
@@ -49,14 +47,13 @@ public interface PublicEventsClient {
             @RequestParam(defaultValue = "10")
             @Min(value = 1, message = "Size must be greater than 0")
             @Max(value = 1000, message = "Size must be less than or equal to 1000")
-            Integer size,
-
-            HttpServletRequest request
+            Integer size
     );
 
     @GetMapping("/{id}")
     ResponseEntity<EventFullDto> getEventByIdFull(
             @PathVariable Long id,
+            @RequestHeader("X-EWM-USER-ID") Long userId,
             HttpServletRequest request
     );
 
@@ -68,4 +65,11 @@ public interface PublicEventsClient {
 
     @GetMapping("/category/{categoryId}")
     Boolean checkEventByCategory(@PathVariable Long categoryId);
+
+    @PutMapping("/{eventId}/like")
+    ResponseEntity<Void> addLike(@PathVariable Long eventId, @RequestHeader("X-EWM-USER-ID") Long userId);
+
+    @GetMapping("/recommendations")
+    ResponseEntity<List<EventShortDto>> getRecommendations(
+            @RequestHeader("X-EWM-USER-ID") Long userId);
 }

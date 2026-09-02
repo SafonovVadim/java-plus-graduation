@@ -1,0 +1,56 @@
+package ru.practicum.controller;
+
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.stereotype.Component;
+import ru.practicum.service.AnalyzerService;
+import ru.practicum.service.dashboard.*;
+
+
+@GrpcService
+@RequiredArgsConstructor
+@Component
+public class AnalyzerController extends RecommendationsControllerGrpc.RecommendationsControllerImplBase {
+    private final AnalyzerService analyzerService;
+
+    @Override
+    public void getRecommendationsForUser(UserPredictionsRequestProto request,
+                                          StreamObserver<RecommendedEventProto> responseObserver) {
+        Iterable<RecommendedEventProto> results = analyzerService.getRecommendationsForUser(request);
+        sendStream(results, responseObserver);
+    }
+
+    @Override
+    public void getSimilarEvents(SimilarEventsRequestProto request,
+                                 StreamObserver<RecommendedEventProto> responseObserver) {
+        Iterable<RecommendedEventProto> results = analyzerService.getSimilarEvents(request);
+        sendStream(results, responseObserver);
+    }
+
+    @Override
+    public void getInteractionsCount(InteractionsCountRequestProto request,
+                                     StreamObserver<RecommendedEventProto> responseObserver) {
+        Iterable<RecommendedEventProto> results = analyzerService.getInteractionsCount(request);
+        sendStream(results, responseObserver);
+    }
+
+    @Override
+    public void hasUserViewedEvent(UserEventCheckRequestProto request,
+                                   StreamObserver<CheckEventResponseProto> responseObserver) {
+        boolean hasViewed = analyzerService.hasUserViewedEvent(request);
+        CheckEventResponseProto response = CheckEventResponseProto.newBuilder()
+                .setHasViewed(hasViewed)
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    private void sendStream(Iterable<RecommendedEventProto> results,
+                            StreamObserver<RecommendedEventProto> responseObserver) {
+        for (RecommendedEventProto result : results) {
+            responseObserver.onNext(result);
+        }
+        responseObserver.onCompleted();
+    }
+}

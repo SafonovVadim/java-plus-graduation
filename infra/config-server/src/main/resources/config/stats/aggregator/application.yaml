@@ -1,0 +1,21 @@
+kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: ru.yandex.practicum.kafka.serializer.ByteArrayDeserializer
+      retries: 0
+    consumer:
+      group-id: aggregator-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: ru.yandex.practicum.kafka.deserializer.ByteArrayDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: false
+    topics:
+      input: stats.user-actions.v1
+      output: stats.events-similarity.v1
+
+main:
+  allow-bean-definition-overriding: true
+server:
+  port: 0
+

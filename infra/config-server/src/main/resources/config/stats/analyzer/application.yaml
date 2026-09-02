@@ -1,0 +1,34 @@
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  consumer:
+    group-id: analyzer-group
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: ru.yandex.practicum.kafka.deserializer.ByteArrayDeserializer
+    auto-offset-reset: latest
+    enable-auto-commit: false
+  topics:
+    input: stats.user-actions.v1
+    output: stats.events-similarity.v1
+spring:
+  jpa:
+  hibernate:
+    ddl-auto: none
+    format_sql: true
+  sql:
+    init:
+      mode: always
+  main:
+    allow-bean-definition-overriding: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5431/analyzer
+    username: dbuser
+    password: 12345
+main:
+  allow-bean-definition-overriding: true
+server:
+  port: 0
+
+grpc:
+  server:
+    port: 0

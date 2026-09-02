@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.AnalyzerClient;
 import ru.practicum.EventsRepository;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.ViewStats;
@@ -27,10 +28,12 @@ import ru.practicum.feign.PublicUserClient;
 import ru.practicum.feign.RequestsManagementClient;
 import ru.practicum.mapper.EventsMapper;
 import ru.practicum.mapper.UserMapper;
+import ru.practicum.service.dashboard.RecommendedEventProto;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.practicum.events.dto.EventState.PENDING;
@@ -43,13 +46,11 @@ import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 @Transactional
 @Slf4j
 public class EventsServiceImpl implements EventsService {
-    private static final int MIN_HOURS_BEFORE_EVENT = 2;
     private final EventsRepository eventRepository;
     private final PublicCategoriesClient publicCategoriesClient;
     private final PublicUserClient publicUserClient;
     private final PublicRequestClient publicRequestClient;
-    private final RequestsManagementClient requestsManagementClient;
-    private final StatsClient statsClient;
+    private final AnalyzerClient analyzerClient;
 
     @Override
     @SneakyThrows
@@ -85,23 +86,6 @@ public class EventsServiceImpl implements EventsService {
         User user = UserMapper.toUser(publicUserClient.getUser(userId));
         log.debug("Пользователь с ID {} найден: {}", userId, user.getName());
         return user;
-    }
-
-    private void setViewsToEvent(Event event) {
-        List<ViewStats> stats = getStats(List.of("/events/" + event.getId()));
-        long views = stats.stream().findFirst().map(ViewStats::getHits).orElse(0L);
-        event.setViews(views);
-    }
-
-    private List<ViewStats> getStats(List<String> uris) {
-        LocalDateTime start = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
-        LocalDateTime end = LocalDateTime.now();
-
-        try {
-            return statsClient.getStats(start, end, uris, true);
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
     }
 
     @Override
@@ -196,16 +180,29 @@ public class EventsServiceImpl implements EventsService {
 
         log.debug("Событие найдено в БД: ID {}, заголовок '{}'", event.getId(), event.getTitle());
 
-        // Получаем количество подтверждённых заявок
         long confirmedRequests = publicRequestClient.countByEventIdAndStatus(event.getId(), EventState.CONFIRMED);
         event.setConfirmedRequests(confirmedRequests);
 
-        // Обновляем просмотры
-        setViewsToEvent(event);
+        setRatingToEvents(List.of(event));
 
         log.info("Полные данные события подготовлены для возврата");
         return toEventFullDto(event);
     }
 
+    private void setRatingToEvents(List<Event> events) {
+        if (events.isEmpty()) return;
+
+        int[] eventIds = events.stream()
+                .mapToInt(e -> e.getId().intValue())
+                .toArray();
+
+        Map<Integer, Double> ratingMap = analyzerClient.getInteractionsCount(eventIds)
+                .collect(Collectors.toMap(RecommendedEventProto::getEventId, RecommendedEventProto::getPredictedRating));
+
+        events.forEach(event -> {
+            Double rating = ratingMap.getOrDefault(event.getId().intValue(), 0.0);
+            event.setRating(rating);
+        });
+    }
 
 }

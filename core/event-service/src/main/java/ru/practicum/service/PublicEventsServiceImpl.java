@@ -6,23 +6,34 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.AnalyzerClient;
+import ru.practicum.CollectorClient;
 import ru.practicum.EventsRepository;
 import ru.practicum.StatsClient;
 import ru.practicum.dto.ViewStats;
+import ru.practicum.errors.exception.BadRequestException;
+import ru.practicum.service.collector.ActionTypeProto;
+import ru.practicum.service.collector.UserActionProto;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
+import ru.practicum.dto.users.UserDto;
 import ru.practicum.entity.Event;
+import ru.practicum.entity.User;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
 import ru.practicum.feign.PublicRequestClient;
+import ru.practicum.feign.PublicUserClient;
 import ru.practicum.mapper.EventsMapper;
+import ru.practicum.service.dashboard.RecommendedEventProto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static feign.Util.toArray;
 import static ru.practicum.events.dto.EventState.CONFIRMED;
 import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 import static ru.practicum.mapper.EventsMapper.toShortEventDto;
@@ -33,9 +44,11 @@ import static ru.practicum.mapper.EventsMapper.toShortEventDto;
 @Slf4j
 public class PublicEventsServiceImpl implements PublicEventsService {
     private final EventsRepository eventRepository;
-    private final StatsClient statsClient;
     private final EventsRepository eventsRepository;
     private final PublicRequestClient publicRequestClient;
+    private final AnalyzerClient analyzerClient;
+    private final CollectorClient collectorClient;
+    private final PublicUserClient publicUserClient;
 
 
     @Override
@@ -46,7 +59,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
             LocalDateTime rangeStart,
             LocalDateTime rangeEnd,
             Boolean onlyAvailable,
-            boolean sortByViews,
+            boolean sortByRating,
             int from,
             int size
     ) {
@@ -69,8 +82,8 @@ public class PublicEventsServiceImpl implements PublicEventsService {
                     event.getConfirmedRequests() >= event.getParticipantLimit());
         }
 
-        if (sortByViews) {
-            events.sort((e1, e2) -> Long.compare(e2.getViews(), e1.getViews()));
+        if (sortByRating) {
+            events.sort((e1, e2) -> Double.compare(e2.getRating(), e1.getRating()));
         }
 
         return events.stream()
@@ -84,7 +97,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
     @Override
     public EventFullDto getPublishedEventById(Long id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + id + " не найдено"));
 
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Событие с id=" + id + " не найдено");
@@ -93,48 +106,69 @@ public class PublicEventsServiceImpl implements PublicEventsService {
         long confirmedRequests = publicRequestClient.countByEventIdAndStatus(event.getId(), CONFIRMED);
         event.setConfirmedRequests(confirmedRequests);
 
-        setViewsToEvents(List.of(event));
+        setRatingToEvents(List.of(event));
 
         return toEventFullDto(event);
     }
 
     @Override
     public EventShortDto getEventShort(Long id) {
-        return toShortEventDto(eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found")));
+        return toShortEventDto(eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Событие с id=" + id + " не найдено")));
     }
 
     @Override
     public Event getEvent(Long id) {
-        return eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
+        return eventsRepository.findById(id).orElseThrow(() -> new NotFoundException("Событие с id=" + id + " не найдено"));
     }
 
-    private void setViewsToEvents(List<Event> events) {
-        if (events.isEmpty()) return;
-
-        List<String> uris = events.stream()
-                .map(event -> "/events/" + event.getId())
-                .collect(Collectors.toList());
-
-        LocalDateTime start = LocalDateTime.now().minusYears(1);
-        LocalDateTime end = LocalDateTime.now();
-
-        List<ViewStats> stats = statsClient.getStats(start, end, uris, true);
-
-        Map<String, Long> viewsMap = stats.stream()
-                .collect(Collectors.toMap(
-                        ViewStats::getUri,
-                        ViewStats::getHits
-                ));
-
-        events.forEach(event -> {
-            String uri = "/events/" + event.getId();
-            Long views = viewsMap.getOrDefault(uri, 0L);
-            event.setViews(views);
-        });
-    }
 
     @Override
     public Boolean getEventByCategory(Long categoryId) {
         return eventsRepository.existsByCategory(categoryId);
+    }
+
+    @Override
+    public List<EventShortDto> getRecommendations(Long userId, int limit) {
+        log.info("Получение рекомендаций для пользователя {}", userId);
+        return analyzerClient.getRecommendationsForUser(userId.intValue(), limit)
+                .map(proto -> {
+                    Event event = eventsRepository.findById((long) proto.getEventId())
+                            .orElseThrow(() -> new NotFoundException(
+                                    "Событие с id=" + proto.getEventId() + " не найдено"));
+                    return toShortEventDto(event);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ResponseEntity<Void> addLike(Long eventId, Long userId) {
+        if (!analyzerClient.hasUserViewedEvent(userId.intValue(), eventId.intValue())) {
+            throw new BadRequestException("Пользователь не посещал данное мероприятие");
+        }
+
+        UserActionProto userActionProto = UserActionProto.newBuilder()
+                .setEventId(eventId.intValue())
+                .setUserId(userId.intValue())
+                .setActionType(ActionTypeProto.ACTION_LIKE)
+                .build();
+        collectorClient.sendUserAction(userActionProto);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void setRatingToEvents(List<Event> events) {
+        if (events.isEmpty()) return;
+
+        int[] eventIds = events.stream()
+                .mapToInt(e -> e.getId().intValue())
+                .toArray();
+
+        Map<Integer, Double> ratingMap = analyzerClient.getInteractionsCount(eventIds)
+                .collect(Collectors.toMap(RecommendedEventProto::getEventId, RecommendedEventProto::getPredictedRating));
+
+        events.forEach(event -> {
+            Double rating = ratingMap.getOrDefault(event.getId().intValue(), 0.0);
+            event.setRating(rating);
+        });
     }
 }
