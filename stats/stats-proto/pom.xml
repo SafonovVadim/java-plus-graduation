@@ -8,7 +8,6 @@
     </parent>
 
     <artifactId>stats-proto</artifactId>
-
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>

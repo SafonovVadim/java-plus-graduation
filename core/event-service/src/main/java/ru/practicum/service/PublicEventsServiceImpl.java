@@ -1,6 +1,7 @@
 package ru.practicum.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
@@ -42,25 +43,13 @@ import static ru.practicum.mapper.EventsMapper.toShortEventDto;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class PublicEventsServiceImpl implements PublicEventsService {
     private final EventsRepository eventRepository;
     private final EventsRepository eventsRepository;
     private final PublicRequestClient publicRequestClient;
     private final AnalyzerClient analyzerClient;
     private final CollectorClient collectorClient;
-
-    public PublicEventsServiceImpl(EventsRepository eventRepository,
-                                   EventsRepository eventsRepository,
-                                   PublicRequestClient publicRequestClient,
-                                   @Lazy AnalyzerClient analyzerClient,
-                                   @Lazy CollectorClient collectorClient) {
-        this.eventRepository = eventRepository;
-        this.eventsRepository = eventsRepository;
-        this.publicRequestClient = publicRequestClient;
-        this.analyzerClient = analyzerClient;
-        this.collectorClient = collectorClient;
-    }
-
 
     @Override
     public List<EventShortDto> getPublishedEvents(

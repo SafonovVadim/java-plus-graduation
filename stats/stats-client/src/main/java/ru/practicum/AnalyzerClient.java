@@ -1,8 +1,6 @@
 package ru.practicum;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.proto.*;
 
@@ -12,13 +10,15 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-@Slf4j
+
 @Service
-@RequiredArgsConstructor
-@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class AnalyzerClient {
-    @GrpcClient("analyzer")
+
     private final RecommendationsControllerGrpc.RecommendationsControllerBlockingStub blockingStub;
+
+    public AnalyzerClient(RecommendationsControllerGrpc.RecommendationsControllerBlockingStub blockingStub) {
+        this.blockingStub = blockingStub;
+    }
 
     public Stream<RecommendedEventProto> getRecommendationsForUser(int userId, int limit) {
         UserPredictionsRequestProto request = UserPredictionsRequestProto.newBuilder()

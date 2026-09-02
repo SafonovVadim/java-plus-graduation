@@ -45,24 +45,13 @@ import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class EventsServiceImpl implements EventsService {
     private final EventsRepository eventRepository;
     private final PublicCategoriesClient publicCategoriesClient;
     private final PublicUserClient publicUserClient;
     private final PublicRequestClient publicRequestClient;
     private final AnalyzerClient analyzerClient;
-
-    public EventsServiceImpl(EventsRepository eventRepository,
-                             PublicCategoriesClient publicCategoriesClient,
-                             PublicUserClient publicUserClient,
-                             PublicRequestClient publicRequestClient,
-                             @Lazy AnalyzerClient analyzerClient) {
-        this.eventRepository = eventRepository;
-        this.publicCategoriesClient = publicCategoriesClient;
-        this.publicUserClient = publicUserClient;
-        this.publicRequestClient = publicRequestClient;
-        this.analyzerClient = analyzerClient;
-    }
 
     @Override
     @SneakyThrows
