@@ -5,7 +5,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,13 +38,24 @@ import static ru.practicum.events.dto.EventState.CONFIRMED;
 import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 
 @Service
-@RequiredArgsConstructor
 public class AdminEventsServiceImpl implements AdminEventsService {
     private final EntityManager entityManager;
     private final AnalyzerClient analyzerClient;
     private final EventsRepository eventsRepository;
     private final PublicCategoriesClient publicCategoriesClient;
     private final PublicRequestClient publicRequestClient;
+
+    public AdminEventsServiceImpl(EntityManager entityManager,
+                                  @Lazy AnalyzerClient analyzerClient,
+                                  EventsRepository eventsRepository,
+                                  PublicCategoriesClient publicCategoriesClient,
+                                  PublicRequestClient publicRequestClient) {
+        this.entityManager = entityManager;
+        this.analyzerClient = analyzerClient;
+        this.eventsRepository = eventsRepository;
+        this.publicCategoriesClient = publicCategoriesClient;
+        this.publicRequestClient = publicRequestClient;
+    }
 
     @Override
     public List<EventFullDto> getEvents(
