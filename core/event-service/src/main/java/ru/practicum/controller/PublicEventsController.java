@@ -2,7 +2,7 @@ package ru.practicum.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.*;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +22,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/events")
-@RequiredArgsConstructor
 public class PublicEventsController implements PublicEventsClient {
 
     private final PublicEventsService eventService;
     private final StatsClient statsClient;
     private final CollectorClient collectorClient;
+
+    public PublicEventsController(PublicEventsService eventService,
+                                  StatsClient statsClient,
+                                  @Lazy CollectorClient collectorClient) {
+        this.eventService = eventService;
+        this.statsClient = statsClient;
+        this.collectorClient = collectorClient;
+    }
 
     @Override
     public ResponseEntity<List<EventShortDto>> getEvents(
