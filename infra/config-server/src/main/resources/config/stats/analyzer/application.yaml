@@ -3,7 +3,7 @@ kafka:
   consumer:
     group-id: analyzer-group
     key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: ru.yandex.practicum.kafka.deserializer.ByteArrayDeserializer
+    value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
     auto-offset-reset: latest
     enable-auto-commit: false
   topics:
