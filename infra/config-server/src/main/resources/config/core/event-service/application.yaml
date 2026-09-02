@@ -34,3 +34,9 @@ grpc:
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext
+stub:
+  spring:
+    grpc:
+      client:
+        analyzer:
+          deferred: true
