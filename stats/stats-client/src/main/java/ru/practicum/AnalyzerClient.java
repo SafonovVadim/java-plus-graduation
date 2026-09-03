@@ -50,16 +50,6 @@ public class AnalyzerClient {
         return asStream(iterator);
     }
 
-    public boolean hasUserViewedEvent(int userId, int eventId) {
-        UserEventCheckRequestProto request = UserEventCheckRequestProto.newBuilder()
-                .setUserId(userId)
-                .setEventId(eventId)
-                .build();
-
-        CheckEventResponseProto response = blockingStub.hasUserViewedEvent(request);
-        return response.getHasViewed();
-    }
-
     private Stream<RecommendedEventProto> asStream(Iterator<RecommendedEventProto> iterator) {
         return StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED),

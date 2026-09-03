@@ -3,7 +3,6 @@ package ru.practicum.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,30 +11,23 @@ import org.springframework.stereotype.Service;
 import ru.practicum.AnalyzerClient;
 import ru.practicum.CollectorClient;
 import ru.practicum.EventsRepository;
-import ru.practicum.StatsClient;
-import ru.practicum.dto.ViewStats;
-import ru.practicum.errors.exception.BadRequestException;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
-import ru.practicum.dto.users.UserDto;
 import ru.practicum.entity.Event;
-import ru.practicum.entity.User;
+import ru.practicum.errors.exception.BadRequestException;
 import ru.practicum.errors.exception.NotFoundException;
 import ru.practicum.events.dto.EventState;
 import ru.practicum.ewm.stats.proto.ActionTypeProto;
 import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.feign.PublicRequestClient;
-import ru.practicum.feign.PublicUserClient;
 import ru.practicum.mapper.EventsMapper;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static feign.Util.toArray;
 import static ru.practicum.events.dto.EventState.CONFIRMED;
 import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 import static ru.practicum.mapper.EventsMapper.toShortEventDto;
@@ -142,7 +134,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
 
     @Override
     public ResponseEntity<Void> addLike(Long eventId, Long userId) {
-        if (!analyzerClient.hasUserViewedEvent(userId.intValue(), eventId.intValue())) {
+        if (!publicRequestClient.existsByEventIdAndRequesterIdAndStatus(eventId, userId, CONFIRMED)) {
             throw new BadRequestException("Пользователь не посещал данное мероприятие");
         }
 

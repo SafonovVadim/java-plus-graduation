@@ -6,46 +6,34 @@ option java_multiple_files = true;
 option java_package = "ru.practicum.ewm.stats.proto";
 
 message UserPredictionsRequestProto {
-    int32 user_id = 1;
-    int32 limit = 2;
+  int32 user_id = 1;
+  int32 limit = 2;
 }
 
 message RecommendedEventProto {
-    int32 event_id = 1;
-    double predicted_rating = 2;
-    double similarity_coefficient = 3;
-    int32 interactions_count = 4;
+  int32 event_id = 1;
+  double predicted_rating = 2;
+  double similarity_coefficient = 3;
+  int32 interactions_count = 4;
 }
 
 message SimilarEventsRequestProto {
-    int32 event_id = 1;
-    int32 user_id = 2;
-    int32 limit = 3;
+  int32 event_id = 1;
+  int32 user_id = 2;
+  int32 limit = 3;
 }
 
 message InteractionsCountRequestProto {
-    repeated int32 event_ids = 1;
-}
-
-message UserEventCheckRequestProto {
-    int32 user_id = 1;
-    int32 event_id = 2;
-}
-
-message CheckEventResponseProto {
-    bool has_viewed = 1;
+  repeated int32 event_ids = 1;
 }
 
 service RecommendationsController {
-    rpc GetRecommendationsForUser(UserPredictionsRequestProto)
-        returns (stream RecommendedEventProto);
+  rpc GetRecommendationsForUser(UserPredictionsRequestProto)
+      returns (stream RecommendedEventProto);
 
-    rpc GetSimilarEvents(SimilarEventsRequestProto)
-        returns (stream RecommendedEventProto);
+  rpc GetSimilarEvents(SimilarEventsRequestProto)
+      returns (stream RecommendedEventProto);
 
-    rpc GetInteractionsCount(InteractionsCountRequestProto)
-        returns (stream RecommendedEventProto);
-
-    rpc HasUserViewedEvent(UserEventCheckRequestProto)
-        returns (CheckEventResponseProto);
+  rpc GetInteractionsCount(InteractionsCountRequestProto)
+      returns (stream RecommendedEventProto);
 }

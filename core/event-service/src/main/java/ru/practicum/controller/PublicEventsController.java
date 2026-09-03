@@ -7,8 +7,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.CollectorClient;
-import ru.practicum.StatsClient;
-import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.entity.Event;
@@ -16,7 +14,6 @@ import ru.practicum.ewm.stats.proto.ActionTypeProto;
 import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.service.PublicEventsService;
-
 
 import java.time.LocalDateTime;
 import java.util.List;

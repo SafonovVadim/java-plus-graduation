@@ -108,7 +108,6 @@ public class AnalyzerService {
 
     public Iterable<RecommendedEventProto> getInteractionsCount(InteractionsCountRequestProto request) {
         List<Integer> eventIds = request.getEventIdsList().stream()
-                .map(Integer::intValue)
                 .toList();
 
         List<UserAction> userActions = userActionRepository.findAll().stream()
@@ -131,12 +130,5 @@ public class AnalyzerService {
                     .build());
         }
         return result;
-    }
-
-    public boolean hasUserViewedEvent(UserEventCheckRequestProto request) {
-        return userActionRepository.existsByUserIdAndEventId(
-                (long) request.getUserId(),
-                (long) request.getEventId()
-        );
     }
 }
