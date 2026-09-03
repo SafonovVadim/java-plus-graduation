@@ -1,15 +1,14 @@
 server:
   port: 8080
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: gateway,health,info
-
 spring:
   cloud:
     gateway:
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: gateway,health,info
       routes:
         - id: request-service
           uri: lb://request-service
