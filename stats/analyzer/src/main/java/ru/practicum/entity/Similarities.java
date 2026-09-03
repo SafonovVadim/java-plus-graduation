@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Table(name = "event_similarities")
@@ -25,6 +25,6 @@ public class Similarities {
     Double score;
 
     @Column(name = "timestamp", nullable = false)
-    Timestamp timestamp;
+    Instant timestamp;
 
 }

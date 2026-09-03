@@ -65,7 +65,7 @@ public class AnalyzerConsumer {
             UserAction action = existing.get();
             if (weight > action.getMaxWeight()) {
                 action.setMaxWeight(weight);
-                action.setTimestamp(new Timestamp(avro.getTimestamp()));
+                action.setTimestamp(avro.getTimestamp());
                 userActionRepository.save(action);
             }
         } else {
@@ -73,7 +73,7 @@ public class AnalyzerConsumer {
             action.setUserId(avro.getUserId());
             action.setEventId(avro.getEventId());
             action.setMaxWeight(weight);
-            action.setTimestamp(new Timestamp(avro.getTimestamp()));
+            action.setTimestamp(avro.getTimestamp());
             userActionRepository.save(action);
         }
     }
@@ -85,14 +85,14 @@ public class AnalyzerConsumer {
         if (existing.isPresent()) {
             Similarities similarity = existing.get();
             similarity.setScore(avro.getScore());
-            similarity.setTimestamp(new Timestamp(avro.getTimestamp()));
+            similarity.setTimestamp(avro.getTimestamp());
             similaritiesRepository.save(similarity);
         } else {
             Similarities similarity = new Similarities();
             similarity.setEventA(avro.getEventA());
             similarity.setEventB(avro.getEventB());
             similarity.setScore(avro.getScore());
-            similarity.setTimestamp(new Timestamp(avro.getTimestamp()));
+            similarity.setTimestamp(avro.getTimestamp());
             similaritiesRepository.save(similarity);
         }
     }

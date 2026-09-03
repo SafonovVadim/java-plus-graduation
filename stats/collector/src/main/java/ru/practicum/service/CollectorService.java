@@ -16,6 +16,7 @@ import ru.practicum.ewm.stats.proto.*;
 
 
 import java.io.IOException;
+import java.time.Instant;
 
 @Slf4j
 @Service
@@ -45,15 +46,13 @@ public class CollectorService {
     }
 
     private UserActionAvro convertToAvro(UserActionProto proto) {
-        ActionTypeAvro actionTypeAvro = mapActionType(proto.getActionType());
-        long timestamp = proto.getTimestamp().getSeconds() * 1000L +
-                proto.getTimestamp().getNanos() / 1_000_000;
-
         return UserActionAvro.newBuilder()
                 .setUserId(proto.getUserId())
                 .setEventId(proto.getEventId())
-                .setActionType(actionTypeAvro)
-                .setTimestamp(timestamp)
+                .setActionType(mapActionType(proto.getActionType()))
+                .setTimestamp(Instant.ofEpochMilli(
+                        proto.getTimestamp().getSeconds() * 1000
+                                + proto.getTimestamp().getNanos() / 1_000_000))
                 .build();
     }
 

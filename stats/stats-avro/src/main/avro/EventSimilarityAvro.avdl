@@ -6,6 +6,6 @@ protocol EventSimilarityProtocol {
         long eventA;
         long eventB;
         double score;
-        long timestamp;
+        timestamp_ms timestamp;
     }
 }

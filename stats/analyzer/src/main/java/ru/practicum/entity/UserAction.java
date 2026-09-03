@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Table(name = "user_actions")
@@ -25,6 +26,6 @@ public class UserAction {
     Double maxWeight;
 
     @Column(name = "timestamp", nullable = false)
-    Timestamp timestamp;
+    Instant timestamp;
 
 }

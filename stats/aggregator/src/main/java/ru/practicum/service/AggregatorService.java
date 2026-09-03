@@ -8,6 +8,7 @@ import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.kafka.UserActionProducer;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,13 +20,12 @@ public class AggregatorService {
     private final UserActionProducer userActionProducer;
 
     private final Map<Integer, Map<Integer, Double>> eventUserWeights = new ConcurrentHashMap<>();
-    private final Map<Integer, Map<Integer, Double>> minWeightsSums = new ConcurrentHashMap<>();
     private final Map<Integer, Double> eventSumSquareWeights = new ConcurrentHashMap<>();
 
     public void processUserAction(UserActionAvro userAction) {
         int eventId = Long.valueOf(userAction.getEventId()).intValue();
         int userId = Long.valueOf(userAction.getUserId()).intValue();
-        long timestamp = userAction.getTimestamp();
+        Instant timestamp = userAction.getTimestamp();
         double weight = getActionWeight(userAction.getActionType());
 
         eventUserWeights.computeIfAbsent(eventId, k -> new ConcurrentHashMap<>());
@@ -50,7 +50,6 @@ public class AggregatorService {
                 .toList();
 
         for (int otherEventId : otherEventIds) {
-            updateMinWeightsSum(eventId, otherEventId, weightDifference);
             double similarity = calculateCosineSimilarity(eventId, otherEventId);
             sendSimilarity(eventId, otherEventId, similarity, timestamp);
         }
@@ -65,22 +64,16 @@ public class AggregatorService {
         return usersA.keySet().stream().anyMatch(usersB::containsKey);
     }
 
-    private void updateMinWeightsSum(int eventA, int eventB, double weightDifference) {
-        double minBefore = getMinWeightSum(eventA, eventB);
-        double minAfter = Math.min(weightDifference, 0.0) + minBefore;
-
-        if (minBefore != minAfter) {
-            minWeightsSums.computeIfAbsent(eventA, k -> new ConcurrentHashMap<>())
-                    .put(eventB, minAfter);
-            minWeightsSums.computeIfAbsent(eventB, k -> new ConcurrentHashMap<>())
-                    .put(eventA, minAfter);
-        }
-    }
-
     private double getMinWeightSum(int eventA, int eventB) {
-        return minWeightsSums
-                .computeIfAbsent(eventA, k -> new ConcurrentHashMap<>())
-                .getOrDefault(eventB, 0.0);
+        Map<Integer, Double> usersA = eventUserWeights.get(eventA);
+        Map<Integer, Double> usersB = eventUserWeights.get(eventB);
+        if (usersA == null || usersB == null) {
+            return 0.0;
+        }
+        return usersA.keySet().stream()
+                .filter(usersB::containsKey)
+                .mapToDouble(userId -> Math.min(usersA.get(userId), usersB.get(userId)))
+                .sum();
     }
 
     private double getActionWeight(ActionTypeAvro actionType) {
@@ -102,7 +95,7 @@ public class AggregatorService {
         return sumMin / (Math.sqrt(sumSquareA) * Math.sqrt(sumSquareB));
     }
 
-    private void sendSimilarity(int eventA, int eventB, double score, long timestamp) {
+    private void sendSimilarity(int eventA, int eventB, double score, Instant timestamp) {
         int firstEvent = Math.min(eventA, eventB);
         int secondEvent = Math.max(eventA, eventB);
 

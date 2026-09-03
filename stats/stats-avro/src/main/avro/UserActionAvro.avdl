@@ -11,6 +11,6 @@ protocol UserActionProtocol {
         long userId;
         long eventId;
         ActionTypeAvro actionType;
-        long timestamp;
+        timestamp_ms timestamp;
     }
 }
