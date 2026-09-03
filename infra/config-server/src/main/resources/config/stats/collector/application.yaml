@@ -6,7 +6,6 @@ kafka:
     retries: 3
   topics:
     output: stats.user-actions.v1
-
 main:
   allow-bean-definition-overriding: true
 server:
