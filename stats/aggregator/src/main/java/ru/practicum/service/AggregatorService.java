@@ -30,7 +30,7 @@ public class AggregatorService {
     public void processUserAction(UserActionAvro userAction) {
         Long eventId = userAction.getEventId();
         Long userId = userAction.getUserId();
-        double newWeight = ACTION_WEIGHTS.getOrDefault(userAction.getActionType(), 0.4);
+        double newWeight = ACTION_WEIGHTS.getOrDefault(userAction.getActionType(), 1.0);
 
         Map<Long, Double> eventIdWeights = userMaxWeights.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
         double oldWeight = eventIdWeights.getOrDefault(eventId, 0.0);
