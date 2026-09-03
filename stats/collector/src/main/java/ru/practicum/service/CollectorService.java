@@ -8,6 +8,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
 import ru.practicum.ewm.stats.avro.*;
@@ -20,7 +21,7 @@ import java.io.IOException;
 @Service
 @RequiredArgsConstructor
 public class CollectorService {
-    private final KafkaProducer<String, byte[]> kafkaProducer;
+    private final KafkaTemplate<String, byte[]> kafkaTemplate;
 
     @Value("${kafka.topics.output}")
     private String userActionTopic;
@@ -31,12 +32,12 @@ public class CollectorService {
         UserActionAvro userActionAvro = convertToAvro(userActionProto);
         byte[] avroData = serializeAvro(userActionAvro);
 
-        kafkaProducer.send(new ProducerRecord<>(userActionTopic,
-                String.valueOf(userActionProto.getUserId()), avroData),
-                (metadata, exception) -> {
+        String key = String.valueOf(userActionProto.getUserId());
+        kafkaTemplate.send(userActionTopic, key, avroData)
+                .whenComplete((metadata, exception) -> {
                     if (exception == null) {
                         log.info("Отправка сообщения в топик {} партицию {} офсет {}",
-                                metadata.topic(), metadata.partition(), metadata.offset());
+                                metadata.getRecordMetadata().topic(), metadata.getRecordMetadata().partition(), metadata.getRecordMetadata().offset());
                     } else {
                         log.error("Ошибка отправки действия пользователя", exception);
                     }
