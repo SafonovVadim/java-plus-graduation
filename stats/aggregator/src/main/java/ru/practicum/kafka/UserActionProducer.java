@@ -5,9 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 
@@ -18,17 +17,17 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class UserActionProducer {
-    private final KafkaProducer<String, byte[]> kafkaProducer;
+    private final KafkaTemplate<String, byte[]> kafkaTemplate;
 
     @Value("${kafka.topics.output}")
     private String similarityTopic;
 
     public void sendSimilarity(EventSimilarityAvro similarity) {
         byte[] avroData = serializeAvro(similarity);
+        String key = similarity.getEventA() + ":" + similarity.getEventB();
 
-        kafkaProducer.send(new ProducerRecord<>(similarityTopic,
-                similarity.getEventA() + ":" + similarity.getEventB(), avroData),
-                (metadata, exception) -> {
+        kafkaTemplate.send(similarityTopic, key, avroData)
+                .whenComplete((metadata, exception) -> {
                     if (exception == null) {
                         log.info("Отправлено сходство для пары событий {} и {}: {}",
                                 similarity.getEventA(), similarity.getEventB(), similarity.getScore());

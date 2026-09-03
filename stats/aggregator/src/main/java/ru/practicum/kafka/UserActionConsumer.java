@@ -2,12 +2,16 @@ package ru.practicum.kafka;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.io.BinaryDecoder;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.service.AggregatorService;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @Slf4j
@@ -27,9 +31,9 @@ public class UserActionConsumer {
     }
 
     private UserActionAvro deserializeAvro(byte[] data) throws IOException {
-        org.apache.avro.specific.SpecificDatumReader<UserActionAvro> reader =
-                new org.apache.avro.specific.SpecificDatumReader<>(UserActionAvro.class);
-        org.apache.avro.io.Decoder decoder = org.apache.avro.io.DecoderFactory.get().binaryDecoder(data, null);
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        BinaryDecoder decoder = DecoderFactory.get().binaryDecoder(in, null);
+        SpecificDatumReader<UserActionAvro> reader = new SpecificDatumReader<>(UserActionAvro.class);
         return reader.read(null, decoder);
     }
 }

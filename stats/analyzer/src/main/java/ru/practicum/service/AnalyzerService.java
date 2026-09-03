@@ -135,8 +135,8 @@ public class AnalyzerService {
 
     public boolean hasUserViewedEvent(UserEventCheckRequestProto request) {
         return userActionRepository.existsByUserIdAndEventId(
-                Long.valueOf(request.getUserId()),
-                Long.valueOf(request.getEventId())
+                (long) request.getUserId(),
+                (long) request.getEventId()
         );
     }
 }
