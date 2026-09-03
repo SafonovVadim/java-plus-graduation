@@ -17,7 +17,6 @@ import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Timestamp;
 import java.util.Optional;
 
 @Slf4j
@@ -27,7 +26,7 @@ public class AnalyzerConsumer {
     private final UserActionRepository userActionRepository;
     private final SimilaritiesRepository similaritiesRepository;
 
-    @KafkaListener(topics = "${kafka.topics.input}", groupId = "analyzer-group")
+    @KafkaListener(topics = "${kafka.topics.input}")
     public void consumeUserAction(ConsumerRecord<String, byte[]> record) {
         try {
             UserActionAvro avro = deserializeAvro(record.value(), UserActionAvro.class);
@@ -44,6 +43,7 @@ public class AnalyzerConsumer {
         try {
             EventSimilarityAvro avro = deserializeAvro(record.value(), EventSimilarityAvro.class);
             saveSimilarity(avro);
+
             log.info("Сохранено сходство eventA={} eventB={} score={}",
                     avro.getEventA(), avro.getEventB(), avro.getScore());
         } catch (Exception e) {
@@ -63,8 +63,8 @@ public class AnalyzerConsumer {
 
         if (existing.isPresent()) {
             UserAction action = existing.get();
-            if (weight > action.getMaxWeight()) {
-                action.setMaxWeight(weight);
+            if (weight > action.getTotalWeight()) {
+                action.setTotalWeight(weight);
                 action.setTimestamp(avro.getTimestamp());
                 userActionRepository.save(action);
             }
@@ -72,7 +72,7 @@ public class AnalyzerConsumer {
             UserAction action = new UserAction();
             action.setUserId(avro.getUserId());
             action.setEventId(avro.getEventId());
-            action.setMaxWeight(weight);
+            action.setTotalWeight(weight);
             action.setTimestamp(avro.getTimestamp());
             userActionRepository.save(action);
         }

@@ -26,14 +26,11 @@ import java.util.List;
 public class PublicEventsController implements PublicEventsClient {
 
     private final PublicEventsService eventService;
-    private final StatsClient statsClient;
     private final CollectorClient collectorClient;
 
     public PublicEventsController(PublicEventsService eventService,
-                                  StatsClient statsClient,
                                   @Lazy CollectorClient collectorClient) {
         this.eventService = eventService;
-        this.statsClient = statsClient;
         this.collectorClient = collectorClient;
     }
 

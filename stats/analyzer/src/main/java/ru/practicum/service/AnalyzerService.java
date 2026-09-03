@@ -30,7 +30,7 @@ public class AnalyzerService {
         Map<Integer, Double> eventWeights = userActions.stream()
                 .collect(Collectors.toMap(
                         action -> action.getEventId().intValue(),
-                        UserAction::getMaxWeight,
+                        UserAction::getTotalWeight,
                         Math::max
                 ));
 
@@ -81,7 +81,7 @@ public class AnalyzerService {
         Map<Integer, Double> userEventWeights = userActions.stream()
                 .collect(Collectors.toMap(
                         action -> action.getEventId().intValue(),
-                        UserAction::getMaxWeight,
+                        UserAction::getTotalWeight,
                         Math::max
                 ));
 
@@ -118,7 +118,7 @@ public class AnalyzerService {
         Map<Integer, Double> eventMaxWeights = userActions.stream()
                 .collect(Collectors.toMap(
                         action -> action.getEventId().intValue(),
-                        UserAction::getMaxWeight,
+                        UserAction::getTotalWeight,
                         Math::max
                 ));
 

@@ -22,8 +22,8 @@ public class UserAction {
     @Column(name = "event_id", nullable = false)
     Long eventId;
 
-    @Column(name = "max_weight", nullable = false)
-    Double maxWeight;
+    @Column(name = "total_weight", nullable = false)
+    Double totalWeight;
 
     @Column(name = "timestamp", nullable = false)
     Instant timestamp;

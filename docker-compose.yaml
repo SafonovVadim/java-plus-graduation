@@ -143,6 +143,23 @@ services:
       retries: 10
     networks:
       - app-network
+  analyzer-db:
+    image: postgres:16.1
+    container_name: analyzer-db
+    hostname: analyzer-db
+    environment:
+      POSTGRES_DB: analyzer
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+    ports:
+      - "5430:5432"
+    healthcheck:
+      test: pg_isready -q -d "$$POSTGRES_DB" -U "$$POSTGRES_USER"
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    networks:
+      - app-network
 
 networks:
   app-network:

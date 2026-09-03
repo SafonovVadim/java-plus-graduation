@@ -20,7 +20,7 @@ import java.io.IOException;
 public class UserActionConsumer {
     private final AggregatorService aggregatorService;
 
-    @KafkaListener(topics = "${kafka.topics.input}", groupId = "aggregator-group")
+    @KafkaListener(topics = "${kafka.topics.input}")
     public void consumeUserAction(ConsumerRecord<String, byte[]> record) {
         try {
             UserActionAvro userAction = deserializeAvro(record.value());

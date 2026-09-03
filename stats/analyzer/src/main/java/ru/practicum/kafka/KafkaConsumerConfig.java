@@ -17,6 +17,7 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,11 +34,9 @@ public class KafkaConsumerConfig {
     public ConsumerFactory<String, byte[]> userActionConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer-" + UUID.randomUUID());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -55,7 +54,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ApplicationRunner seekToEndUserActions(ConsumerFactory<String, byte[]> userActionConsumerFactory) {
         return args -> {
-            try (var consumer = userActionConsumerFactory.createConsumer("analyzer-reset-ua", "reset")) {
+            try (var consumer = userActionConsumerFactory.createConsumer("analyzer-reset-user", "reset")) {
                 var partitions = consumer.partitionsFor("stats.user-actions.v1")
                         .stream()
                         .map(p -> new TopicPartition(p.topic(), p.partition()))
@@ -73,7 +72,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ApplicationRunner seekToEndEventSimilarity(ConsumerFactory<String, byte[]> userActionConsumerFactory) {
         return args -> {
-            try (var consumer = userActionConsumerFactory.createConsumer("analyzer-reset-es", "reset")) {
+            try (var consumer = userActionConsumerFactory.createConsumer("analyzer-reset-similarity", "reset")) {
                 var partitions = consumer.partitionsFor("stats.events-similarity.v1")
                         .stream()
                         .map(p -> new TopicPartition(p.topic(), p.partition()))
