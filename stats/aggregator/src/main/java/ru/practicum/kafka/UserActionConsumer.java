@@ -8,6 +8,7 @@ import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.stats.avro.UserActionAvro;
 import ru.practicum.service.AggregatorService;
 
@@ -20,7 +21,8 @@ import java.io.IOException;
 public class UserActionConsumer {
     private final AggregatorService aggregatorService;
 
-    @KafkaListener(topics = "${kafka.topics.input}")
+    @KafkaListener(topics = "${kafka.topics.input}", groupId = "aggregator-user-actions",
+            containerFactory = "userActionListenerFactory")
     public void consumeUserAction(ConsumerRecord<String, byte[]> record) {
         try {
             UserActionAvro userAction = deserializeAvro(record.value());
