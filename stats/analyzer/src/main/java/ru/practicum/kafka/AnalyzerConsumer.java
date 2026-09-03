@@ -26,10 +26,12 @@ public class AnalyzerConsumer {
     private final UserActionRepository userActionRepository;
     private final SimilaritiesRepository similaritiesRepository;
 
-    @KafkaListener(topics = "${kafka.topics.input}")
-    public void consumeUserAction(ConsumerRecord<String, byte[]> record) {
+    @Transactional
+    @KafkaListener(topics = "${kafka.topics.input}", groupId = "analyzer-user-actions",
+            containerFactory = "userActionListenerFactory")
+    public void consumeUserAction(byte[] data) {
         try {
-            UserActionAvro avro = deserializeAvro(record.value(), UserActionAvro.class);
+            UserActionAvro avro = deserializeAvro(data, UserActionAvro.class);
             saveUserAction(avro);
             log.info("Сохранено действие пользователя userId={} eventId={}",
                     avro.getUserId(), avro.getEventId());
@@ -38,10 +40,12 @@ public class AnalyzerConsumer {
         }
     }
 
-    @KafkaListener(topics = "${kafka.topics.output}", groupId = "analyzer-group")
-    public void consumeSimilarity(ConsumerRecord<String, byte[]> record) {
+    @Transactional
+    @KafkaListener(topics = "${kafka.topics.output}", groupId = "analyzer-similarity",
+            containerFactory = "eventSimilarityListenerFactory")
+    public void consumeSimilarity(byte[] data) {
         try {
-            EventSimilarityAvro avro = deserializeAvro(record.value(), EventSimilarityAvro.class);
+            EventSimilarityAvro avro = deserializeAvro(data, EventSimilarityAvro.class);
             saveSimilarity(avro);
 
             log.info("Сохранено сходство eventA={} eventB={} score={}",

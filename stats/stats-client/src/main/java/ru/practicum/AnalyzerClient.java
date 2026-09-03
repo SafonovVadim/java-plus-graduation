@@ -23,7 +23,7 @@ public class AnalyzerClient {
     public Stream<RecommendedEventProto> getRecommendationsForUser(int userId, int limit) {
         UserPredictionsRequestProto request = UserPredictionsRequestProto.newBuilder()
                 .setUserId(userId)
-                .setLimit(limit)
+                .setMaxResults(limit)
                 .build();
 
         Iterator<RecommendedEventProto> iterator = blockingStub.getRecommendationsForUser(request);
@@ -34,7 +34,7 @@ public class AnalyzerClient {
         SimilarEventsRequestProto request = SimilarEventsRequestProto.newBuilder()
                 .setEventId(eventId)
                 .setUserId(userId)
-                .setLimit(limit)
+                .setMaxResults(limit)
                 .build();
 
         Iterator<RecommendedEventProto> iterator = blockingStub.getSimilarEvents(request);
@@ -43,7 +43,7 @@ public class AnalyzerClient {
 
     public Stream<RecommendedEventProto> getInteractionsCount(int[] eventIds) {
         InteractionsCountRequestProto request = InteractionsCountRequestProto.newBuilder()
-                .addAllEventIds(java.util.Arrays.stream(eventIds).boxed().collect(java.util.stream.Collectors.toList()))
+                .addAllEventId(java.util.Arrays.stream(eventIds).boxed().collect(java.util.stream.Collectors.toList()))
                 .build();
 
         Iterator<RecommendedEventProto> iterator = blockingStub.getInteractionsCount(request);

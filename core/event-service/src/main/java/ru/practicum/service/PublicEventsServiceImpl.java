@@ -156,7 +156,7 @@ public class PublicEventsServiceImpl implements PublicEventsService {
                 .toArray();
 
         Map<Integer, Double> ratingMap = analyzerClient.getInteractionsCount(eventIds)
-                .collect(Collectors.toMap(RecommendedEventProto::getEventId, RecommendedEventProto::getPredictedRating));
+                .collect(Collectors.toMap(RecommendedEventProto::getEventId, RecommendedEventProto::getScore));
 
         events.forEach(event -> {
             Double rating = ratingMap.getOrDefault(event.getId().intValue(), 0.0);

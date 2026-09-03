@@ -5,18 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.stats.avro.ActionTypeAvro;
-import ru.practicum.ewm.stats.avro.*;
-import ru.practicum.ewm.stats.proto.*;
-
+import ru.practicum.ewm.stats.avro.UserActionAvro;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 
 import java.io.IOException;
-import java.time.Instant;
 
 @Slf4j
 @Service
@@ -33,16 +30,21 @@ public class CollectorService {
         UserActionAvro userActionAvro = convertToAvro(userActionProto);
         byte[] avroData = serializeAvro(userActionAvro);
 
-        String key = String.valueOf(userActionProto.getUserId());
-        kafkaTemplate.send(userActionTopic, key, avroData)
-                .whenComplete((metadata, exception) -> {
-                    if (exception == null) {
-                        log.info("Отправка сообщения в топик {} партицию {} офсет {}",
-                                metadata.getRecordMetadata().topic(), metadata.getRecordMetadata().partition(), metadata.getRecordMetadata().offset());
-                    } else {
-                        log.error("Ошибка отправки действия пользователя", exception);
-                    }
-                });
+        try {
+            kafkaTemplate.send(userActionTopic, avroData)
+                    .whenComplete((metadata, exception) -> {
+                        if (exception == null) {
+                            log.info("Отправка сообщения в топик {} партицию {} офсет {}",
+                                    metadata.getRecordMetadata().topic(),
+                                    metadata.getRecordMetadata().partition(),
+                                    metadata.getRecordMetadata().offset());
+                        } else {
+                            log.error("Ошибка отправки действия пользователя", exception);
+                        }
+                    });
+        } catch (Exception e) {
+            log.error("Ошибка отправки действия пользователя", e);
+        }
     }
 
     private UserActionAvro convertToAvro(UserActionProto proto) {
@@ -50,7 +52,7 @@ public class CollectorService {
                 .setUserId(proto.getUserId())
                 .setEventId(proto.getEventId())
                 .setActionType(mapActionType(proto.getActionType()))
-                .setTimestamp(Instant.ofEpochMilli(
+                .setTimestamp(java.time.Instant.ofEpochMilli(
                         proto.getTimestamp().getSeconds() * 1000
                                 + proto.getTimestamp().getNanos() / 1_000_000))
                 .build();

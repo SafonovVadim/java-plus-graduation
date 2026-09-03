@@ -17,14 +17,14 @@ public class AnalyzerController extends RecommendationsControllerGrpc.Recommenda
 
     @Override
     public void getRecommendationsForUser(UserPredictionsRequestProto request, StreamObserver<RecommendedEventProto> responseObserver) {
-        analyzerService.getRecommendationsForUser(request.getUserId(), request.getMaxResults())
+        analyzerService.getRecommendationsForUser(request)
                 .forEach(responseObserver::onNext);
         responseObserver.onCompleted();
     }
 
     @Override
     public void getSimilarEvents(SimilarEventsRequestProto request, StreamObserver<RecommendedEventProto> responseObserver) {
-        analyzerService.getSimilarEvents(request.getEventId(), request.getUserId(), request.getMaxResults())
+        analyzerService.getSimilarEvents(request)
                 .forEach(responseObserver::onNext);
         responseObserver.onCompleted();
     }
