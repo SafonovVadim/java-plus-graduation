@@ -5,10 +5,7 @@ spring:
   cloud:
     gateway:
       management:
-        endpoints:
-          web:
-            exposure:
-              include: gateway,health,info
+        enabled: true
       routes:
         - id: request-service
           uri: lb://request-service

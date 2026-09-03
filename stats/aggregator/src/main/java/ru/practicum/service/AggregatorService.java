@@ -31,7 +31,7 @@ public class AggregatorService {
         eventUserWeights.computeIfAbsent(eventId, k -> new ConcurrentHashMap<>());
         Map<Integer, Double> userIdWeights = eventUserWeights.get(eventId);
 
-        double oldWeight = userIdWeights.getOrDefault(userId, 0.0);
+        double oldWeight = userIdWeights.getOrDefault(userId, 1.0);
         if (weight <= oldWeight) {
             log.info("Максимальный вес для пользователя {} мероприятия {} не изменился, пропускаем", userId, eventId);
             return;
