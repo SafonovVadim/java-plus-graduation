@@ -2,17 +2,14 @@ package ru.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import ru.practicum.ewm.stats.avro.ActionTypeAvro;
-import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
-import ru.practicum.ewm.stats.avro.UserActionAvro;
+import org.springframework.stereotype.Component;
 import ru.practicum.kafka.UserActionProducer;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class AggregatorService {
     private final UserActionProducer userActionProducer;
@@ -21,68 +18,83 @@ public class AggregatorService {
     private final Map<Long, Map<Long, Double>> minSums = new ConcurrentHashMap<>();
     private final Map<Long, Double> eventSums = new ConcurrentHashMap<>();
 
-    private static final Map<ActionTypeAvro, Double> ACTION_WEIGHTS = Map.of(
-            ActionTypeAvro.VIEW, 0.4,
-            ActionTypeAvro.REGISTER, 0.8,
-            ActionTypeAvro.LIKE, 1.0
+    private static final Map<String, Double> ACTION_WEIGHTS = Map.of(
+            "VIEW", 0.4,
+            "REGISTER", 0.8,
+            "LIKE", 1.0
     );
 
-    public void processUserAction(UserActionAvro userAction) {
-        Long eventId = userAction.getEventId();
-        Long userId = userAction.getUserId();
-        double newWeight = ACTION_WEIGHTS.getOrDefault(userAction.getActionType(), 0.4);
+    public void processUserAction(Long eventId, Long userId, String actionType) {
+        double newWeight = ACTION_WEIGHTS.getOrDefault(actionType, 0.4);
+        double oldWeight = getUserWeightForEvent(userId, eventId);
 
-        Map<Long, Double> eventIdWeights = userMaxWeights.computeIfAbsent(userId, k -> new ConcurrentHashMap<>());
-        double oldWeight = eventIdWeights.getOrDefault(eventId, 0.0);
-
+        log.info("Обработка: userId={}, eventId={}, type={}, weight={}",
+                userId, eventId, actionType, newWeight);
         if (newWeight <= oldWeight) {
-            log.info("Максимальный вес для пользователя {} мероприятия {} не изменился, пропускаем", userId, eventId);
+            log.info("Пропуск: newWeight={} <= oldWeight={}", newWeight, oldWeight);
             return;
         }
 
+        putUserWeight(userId, eventId, newWeight);
         double deltaSum = newWeight - oldWeight;
-        eventIdWeights.put(eventId, newWeight);
-        eventSums.merge(eventId, deltaSum, Double::sum);
+        addToEventSum(eventId, deltaSum);
+        Map<Long, Double> userEvents = getUserWeights(userId);
 
-        for (Map.Entry<Long, Double> entry : eventIdWeights.entrySet()) {
+        for (Map.Entry<Long, Double> entry : userEvents.entrySet()) {
             Long otherEventId = entry.getKey();
             if (otherEventId.equals(eventId)) continue;
 
             double otherWeight = entry.getValue();
+
             double oldMin = Math.min(oldWeight, otherWeight);
             double newMin = Math.min(newWeight, otherWeight);
             double deltaMin = newMin - oldMin;
-
             addToMinSum(eventId, otherEventId, deltaMin);
 
             long first = Math.min(eventId, otherEventId);
             long second = Math.max(eventId, otherEventId);
 
             double minSum = getMinSum(eventId, otherEventId);
-            double sumA = eventSums.getOrDefault(first, 0.0);
-            double sumB = eventSums.getOrDefault(second, 0.0);
+            double sumA = getEventSum(first);
+            double sumB = getEventSum(second);
             double similarity = minSum / (Math.sqrt(sumA) * Math.sqrt(sumB));
 
             double roundedSimilarity = Math.round(similarity * 1000000.0) / 1000000.0;
 
-            EventSimilarityAvro similarityAvro = EventSimilarityAvro.newBuilder()
-                    .setEventA(Long.valueOf(first).intValue())
-                    .setEventB(Long.valueOf(second).intValue())
-                    .setScore(roundedSimilarity)
-                    .build();
+            log.info("Обновление пары ({},{}): deltaMin={}, similarity={}", first, second, deltaMin, roundedSimilarity);
 
-            userActionProducer.sendSimilarity(similarityAvro);
+            userActionProducer.sendSimilarity(first, second, roundedSimilarity);
         }
     }
 
-    private void addToMinSum(Long eventA, Long eventB, Double delta) {
+    private Map<Long, Double> getUserWeights(Long userId) {
+        return userMaxWeights.getOrDefault(userId, Map.of());
+    }
+
+    private Double getUserWeightForEvent(Long userId, Long eventId) {
+        return userMaxWeights.getOrDefault(userId, Map.of()).getOrDefault(eventId, 0.0);
+    }
+
+    private void putUserWeight(Long userId, Long eventId, Double weight) {
+        userMaxWeights.computeIfAbsent(userId, k -> new ConcurrentHashMap<>()).put(eventId, weight);
+    }
+
+    private void addToEventSum(Long eventId, Double delta) {
+        eventSums.merge(eventId, delta, Double::sum);
+    }
+
+    private Double getEventSum(Long eventId) {
+        return eventSums.getOrDefault(eventId, 0.0);
+    }
+
+    public void addToMinSum(Long eventA, Long eventB, Double delta) {
         long first = Math.min(eventA, eventB);
         long second = Math.max(eventA, eventB);
         minSums.computeIfAbsent(first, k -> new ConcurrentHashMap<>())
                 .merge(second, delta, Double::sum);
     }
 
-    private double getMinSum(Long eventA, Long eventB) {
+    public Double getMinSum(Long eventA, Long eventB) {
         long first = Math.min(eventA, eventB);
         long second = Math.max(eventA, eventB);
         return minSums.getOrDefault(first, Map.of()).getOrDefault(second, 0.0);

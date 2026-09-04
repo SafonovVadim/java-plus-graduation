@@ -58,9 +58,9 @@ public class AnalyzerConsumer {
     @Transactional
     public void saveUserAction(UserActionAvro avro) {
         double weight = switch (avro.getActionType()) {
-            case VIEW -> 1.0;
-            case REGISTER -> 2.0;
-            case LIKE -> 3.0;
+            case VIEW -> 0.4;
+            case REGISTER -> 0.8;
+            case LIKE -> 1.0;
         };
 
         Optional<UserAction> existing = userActionRepository.findByUserIdAndEventId(avro.getUserId(), avro.getEventId());

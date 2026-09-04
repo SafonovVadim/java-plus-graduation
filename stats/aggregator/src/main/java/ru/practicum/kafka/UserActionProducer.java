@@ -3,6 +3,7 @@ package ru.practicum.kafka;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.io.BinaryEncoder;
+import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,43 +12,39 @@ import org.springframework.stereotype.Component;
 import ru.practicum.ewm.stats.avro.EventSimilarityAvro;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.time.Instant;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserActionProducer {
+
     private final KafkaTemplate<String, byte[]> kafkaTemplate;
-
     @Value("${kafka.topics.output}")
-    private String similarityTopic;
+    private String TOPIC;
 
-    public void sendSimilarity(EventSimilarityAvro similarity) {
-        byte[] avroData = serializeAvro(similarity);
-        String key = similarity.getEventA() + ":" + similarity.getEventB();
-
-        kafkaTemplate.send(similarityTopic, key, avroData)
-                .whenComplete((metadata, exception) -> {
-                    if (exception == null) {
-                        log.info("Отправлено сходство для пары событий {} и {}: {}",
-                                similarity.getEventA(), similarity.getEventB(), similarity.getScore());
-                    } else {
-                        log.error("Ошибка отправки сходства для пары событий {} и {}",
-                                similarity.getEventA(), similarity.getEventB(), exception);
-                    }
-                });
-    }
-
-    private byte[] serializeAvro(EventSimilarityAvro similarity) {
+    public void sendSimilarity(Long eventA, Long eventB, double score) {
         try {
-            SpecificDatumWriter<EventSimilarityAvro> writer = new SpecificDatumWriter<>(EventSimilarityAvro.class);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(outputStream, null);
-            writer.write(similarity, encoder);
+            EventSimilarityAvro avro = EventSimilarityAvro.newBuilder()
+                    .setEventA(eventA)
+                    .setEventB(eventB)
+                    .setScore(score)
+                    .setTimestamp(Instant.now())
+                    .build();
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(out, null);
+            DatumWriter<EventSimilarityAvro> writer = new SpecificDatumWriter<>(EventSimilarityAvro.class);
+            writer.write(avro, encoder);
             encoder.flush();
-            return outputStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка сериализации EventSimilarityAvro", e);
+            byte[] bytes = out.toByteArray();
+
+            kafkaTemplate.send(TOPIC, bytes);
+            log.info("Отправлено сходство для пары событий {} и {}: {}",
+                    eventA, eventB, score);
+        } catch (Exception e) {
+            log.error("Ошибка отправки сходства для пары событий {} и {}",
+                    eventA, eventB, e);
         }
     }
 }
