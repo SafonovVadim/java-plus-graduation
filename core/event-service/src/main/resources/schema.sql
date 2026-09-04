@@ -15,5 +15,5 @@ CREATE TABLE IF NOT EXISTS events (
     request_moderation BOOLEAN NOT NULL,
     state VARCHAR(20) NOT NULL,
     title VARCHAR(120) NOT NULL,
-    views BIGINT NOT NULL DEFAULT 0
+    rating DOUBLE PRECISION NOT NULL DEFAULT 0
 );

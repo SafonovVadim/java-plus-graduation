@@ -21,3 +21,11 @@ logging:
     org.springframework.web: DEBUG
 server:
   port: 0
+
+grpc:
+  client:
+    collector:
+      address: 'discovery:///collector'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
