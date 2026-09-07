@@ -2,15 +2,16 @@ package ru.practicum.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.*;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.StatsClient;
-import ru.practicum.dto.EndpointHit;
+import ru.practicum.CollectorClient;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.entity.Event;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.feign.PublicEventsClient;
 import ru.practicum.service.PublicEventsService;
 
@@ -19,11 +20,16 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/events")
-@RequiredArgsConstructor
 public class PublicEventsController implements PublicEventsClient {
 
     private final PublicEventsService eventService;
-    private final StatsClient statsClient;
+    private final CollectorClient collectorClient;
+
+    public PublicEventsController(PublicEventsService eventService,
+                                  @Lazy CollectorClient collectorClient) {
+        this.eventService = eventService;
+        this.collectorClient = collectorClient;
+    }
 
     @Override
     public ResponseEntity<List<EventShortDto>> getEvents(
@@ -47,7 +53,7 @@ public class PublicEventsController implements PublicEventsClient {
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
 
             @RequestParam(defaultValue = "EVENT_DATE")
-            @Pattern(regexp = "EVENT_DATE|VIEWS", message = "Sort must be either 'EVENT_DATE' or 'VIEWS'")
+            @Pattern(regexp = "EVENT_DATE|RATING", message = "Sort must be either 'EVENT_DATE' or 'RATING'")
             String sort,
 
             @RequestParam(defaultValue = "0")
@@ -57,21 +63,12 @@ public class PublicEventsController implements PublicEventsClient {
             @RequestParam(defaultValue = "10")
             @Min(value = 1, message = "Size must be greater than 0")
             @Max(value = 1000, message = "Size must be less than or equal to 1000")
-            Integer size,
-
-            HttpServletRequest request
+            Integer size
     ) {
-        EndpointHit hit = EndpointHit.builder()
-                .app("events-management")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
-                .build();
-        statsClient.hit(hit);
 
         List<EventShortDto> events = eventService.getPublishedEvents(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
-                sort.equals("VIEWS"), from, size
+                sort.equals("RATING"), from, size
         );
 
         return ResponseEntity.ok(events);
@@ -80,15 +77,15 @@ public class PublicEventsController implements PublicEventsClient {
     @Override
     public ResponseEntity<EventFullDto> getEventByIdFull(
             @PathVariable Long id,
+            @RequestHeader("X-EWM-USER-ID") Long userId,
             HttpServletRequest request
     ) {
-        EndpointHit hit = EndpointHit.builder()
-                .app("events-management")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
+        UserActionProto userActionProto = UserActionProto.newBuilder()
+                .setEventId(id.intValue())
+                .setUserId(userId.intValue())
+                .setActionType(ActionTypeProto.ACTION_VIEW)
                 .build();
-        statsClient.hit(hit);
+        collectorClient.sendUserAction(userActionProto);
 
         EventFullDto event = eventService.getPublishedEventById(id);
         return ResponseEntity.ok(event);
@@ -105,7 +102,19 @@ public class PublicEventsController implements PublicEventsClient {
     }
 
     @Override
-    public Boolean checkEventByCategory(@PathVariable Long categoryId){
+    public Boolean checkEventByCategory(@PathVariable Long categoryId) {
         return eventService.getEventByCategory(categoryId);
+    }
+
+    @Override
+    public ResponseEntity<Void> addLike(Long eventId, Long userId) {
+        return eventService.addLike(eventId, userId);
+    }
+
+    @Override
+    public ResponseEntity<List<EventShortDto>> getRecommendations(
+            @RequestHeader("X-EWM-USER-ID") Long userId) {
+        List<EventShortDto> recommendations = eventService.getRecommendations(userId, 10);
+        return ResponseEntity.ok(recommendations);
     }
 }

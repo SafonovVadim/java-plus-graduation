@@ -9,23 +9,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.AnalyzerClient;
 import ru.practicum.EventsRepository;
-import ru.practicum.StatsClient;
-import ru.practicum.dto.ViewStats;
 import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.UpdateEventAdminRequest;
 import ru.practicum.entity.Event;
+import ru.practicum.errors.exception.BadRequestException;
 import ru.practicum.errors.exception.ConflictException;
 import ru.practicum.errors.exception.NotFoundException;
-import ru.practicum.errors.exception.BadRequestException;
+import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 import ru.practicum.feign.PublicCategoriesClient;
 import ru.practicum.feign.PublicRequestClient;
 import ru.practicum.mapper.EventsMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,7 +38,7 @@ import static ru.practicum.mapper.EventsMapper.toEventFullDto;
 @RequiredArgsConstructor
 public class AdminEventsServiceImpl implements AdminEventsService {
     private final EntityManager entityManager;
-    private final StatsClient statsClient;
+    private final AnalyzerClient analyzerClient;
     private final EventsRepository eventsRepository;
     private final PublicCategoriesClient publicCategoriesClient;
     private final PublicRequestClient publicRequestClient;
@@ -96,7 +95,7 @@ public class AdminEventsServiceImpl implements AdminEventsService {
             event.setConfirmedRequests(confirmed);
         }
 
-        setViewsToEvents(events);
+        setRatingToEvents(events);
 
         return events.stream()
                 .map(EventsMapper::toEventFullDto)
@@ -148,50 +147,23 @@ public class AdminEventsServiceImpl implements AdminEventsService {
         Event saved = eventsRepository.save(event);
         Long confirmed = publicRequestClient.countByEventIdAndStatus(saved.getId(), CONFIRMED);
         saved.setConfirmedRequests(confirmed);
-        setViewsToEvent(saved);
+        setRatingToEvents(List.of(saved));
         return toEventFullDto(saved);
     }
 
-    private void setViewsToEvents(List<Event> events) {
+    private void setRatingToEvents(List<Event> events) {
         if (events.isEmpty()) return;
 
-        List<String> uris = events.stream()
-                .map(event -> "/events/" + event.getId())
-                .collect(Collectors.toList());
+        int[] eventIds = events.stream()
+                .mapToInt(e -> e.getId().intValue())
+                .toArray();
 
-        LocalDateTime start = LocalDateTime.now().minusYears(1);
-        LocalDateTime end = LocalDateTime.now();
-
-        List<ViewStats> stats = statsClient.getStats(start, end, uris, true);
-
-        Map<String, Long> viewsMap = stats.stream()
-                .collect(Collectors.toMap(
-                        ViewStats::getUri,
-                        ViewStats::getHits
-                ));
+        Map<Integer, Double> ratingMap = analyzerClient.getInteractionsCount(eventIds)
+                .collect(Collectors.toMap(RecommendedEventProto::getEventId, RecommendedEventProto::getScore));
 
         events.forEach(event -> {
-            String uri = "/events/" + event.getId();
-            Long views = viewsMap.getOrDefault(uri, 0L);
-            event.setViews(views);
+            Double rating = ratingMap.getOrDefault(event.getId().intValue(), 0.0);
+            event.setRating(rating);
         });
-    }
-
-
-    private void setViewsToEvent(Event event) {
-        List<ViewStats> stats = getStats(List.of("/events/" + event.getId()));
-        long views = stats.stream().findFirst().map(ViewStats::getHits).orElse(0L);
-        event.setViews(views);
-    }
-
-    private List<ViewStats> getStats(List<String> uris) {
-        LocalDateTime start = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
-        LocalDateTime end = LocalDateTime.now();
-
-        try {
-            return statsClient.getStats(start, end, uris, true);
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
     }
 }

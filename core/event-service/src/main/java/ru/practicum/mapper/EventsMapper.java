@@ -4,7 +4,6 @@ import ru.practicum.dto.categories.CategoryDto;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.dto.events.NewEventDto;
-import ru.practicum.dto.users.UserDto;
 import ru.practicum.dto.users.UserShortDto;
 import ru.practicum.entity.Event;
 import ru.practicum.events.dto.EventState;
@@ -30,7 +29,7 @@ public class EventsMapper {
         }});
         dto.setPaid(event.getPaid());
         dto.setTitle(event.getTitle());
-        dto.setViews(event.getViews());
+        dto.setRating(event.getRating());
         return dto;
     }
 
@@ -48,7 +47,7 @@ public class EventsMapper {
         }});
         dto.setPaid(event.getPaid());
         dto.setTitle(event.getTitle());
-        dto.setViews(event.getViews());
+        dto.setRating(event.getRating());
         return dto;
     }
 
@@ -80,7 +79,7 @@ public class EventsMapper {
         dto.setRequestModeration(event.getRequestModeration());
         dto.setState(event.getState().name());
         dto.setTitle(event.getTitle());
-        dto.setViews(event.getViews());
+        dto.setRating(event.getRating());
         return dto;
     }
 
@@ -106,7 +105,7 @@ public class EventsMapper {
                 .requestModeration(dto.getRequestModeration())
                 .state(EventState.valueOf(dto.getState()))
                 .title(dto.getTitle())
-                .views(dto.getViews())
+                .rating(dto.getRating())
                 .build();
     }
 

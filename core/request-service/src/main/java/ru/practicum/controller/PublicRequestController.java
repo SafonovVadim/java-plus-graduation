@@ -16,4 +16,9 @@ public class PublicRequestController implements PublicRequestClient {
     public Long countByEventIdAndStatus(Long eventId, ru.practicum.events.dto.EventState status) {
         return publicRequestsService.countByEventIdAndStatus(eventId, status);
     }
+
+    @Override
+    public Boolean existsByEventIdAndRequesterIdAndStatus(Long eventId, Long userId, ru.practicum.events.dto.EventState status) {
+        return publicRequestsService.existsByEventIdRequesterAndStatus(eventId,userId,status);
+    }
 }

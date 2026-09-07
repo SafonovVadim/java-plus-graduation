@@ -3,6 +3,7 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.RequestRepository;
+import ru.practicum.events.dto.EventState;
 
 @Service
 @RequiredArgsConstructor
@@ -12,5 +13,10 @@ public class PublicRequestsServiceImpl implements PublicRequestsService {
     @Override
     public long countByEventIdAndStatus(long eventId, ru.practicum.events.dto.EventState status) {
         return requestRepository.countByEventIdAndStatus(eventId, status);
+    }
+
+    @Override
+    public boolean existsByEventIdRequesterAndStatus(long eventId, long requesterId, EventState status) {
+        return requestRepository.existsByEventIdAndRequesterIdAndStatus(eventId, requesterId, status);
     }
 }

@@ -1,6 +1,7 @@
 package ru.practicum.service;
 
 
+import org.springframework.http.ResponseEntity;
 import ru.practicum.dto.events.EventFullDto;
 import ru.practicum.dto.events.EventShortDto;
 import ru.practicum.entity.Event;
@@ -27,5 +28,11 @@ public interface PublicEventsService {
     EventShortDto getEventShort(Long id);
 
     Event getEvent(Long id);
+
     Boolean getEventByCategory(Long categoryId);
+
+    List<EventShortDto> getRecommendations(Long userId, int limit);
+
+    ResponseEntity<Void> addLike(Long eventId, Long userId);
+
 }
